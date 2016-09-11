@@ -1,0 +1,37 @@
+# Windows port cross-compiling with MacOSX MinGW 4.3.0
+# (good luck)
+
+PROJ  := MakeIndex
+VA    := 0
+VB    := 8
+FILES := Recursor Parser Widget Files
+BDIR  := win
+BACK  := backup
+EXE   := $(PROJ).exe
+INST  := $(PROJ)-$(VA)_$(VB)
+OBJS  := $(patsubst %,$(BDIR)/%.o,$(FILES))
+SRCS  := $(patsubst %,%.c,$(FILES))
+H     := $(patsubst %,%.h,$(FILES))
+
+CC   := /usr/local/i386-mingw32-4.3.0/bin/i386-mingw32-gcc
+CF   := -Wall -O3 -fasm -fomit-frame-pointer -ffast-math -funroll-loops -pedantic -ansi
+
+default: $(BDIR)/$(EXE)
+
+$(BDIR)/$(EXE): $(OBJS)
+	$(CC) $(CF) -o $@ $^
+
+$(BDIR)/%.o: %.c
+	@mkdir -p $(BDIR)
+	$(CC) $(CF) -c $? -o $@
+
+.PHONY: clean backup
+clean:
+	-rm $(OBJS)
+
+setup: $(BDIR)/$(EXE)
+	@mkdir -p $(INST)
+	cp $(BDIR)/$(EXE) readme.txt gpl.txt copying.txt $(INST)
+	cp -a bin/example $(INST)
+	zip $(BDIR)/$(INST)-Win32-`date +%Y-%m-%dT%H%M%S` $(INST)/$(EXE) -r $(INST)
+	rm -R $(INST)
