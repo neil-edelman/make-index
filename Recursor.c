@@ -1,13 +1,17 @@
-/* Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
- GNU General Public License, see copying.txt */
+/** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
+ GNU General Public License, see copying.txt
 
-/* This is the main program. I didn't know what to call it.
- * Created by Neil Edelman on 2008-03-27. */
+ This is the main program. I didn't know what to call it.
+ 
+ @author	Neil
+ @version	1.0; 2016-09-19 Added umask
+ @since		1.0; 2008-03-27 */
 
 #include <stdlib.h>   /* malloc free fgets */
 #include <stdio.h>    /* fprintf FILE */
 #include <string.h>   /* strcmp */
 #include <unistd.h>   /* chdir (POSIX, not ANSI) */
+#include <sys/stat.h> /* umask */
 #include "Files.h"
 #include "Widget.h"
 #include "Parser.h"
@@ -126,10 +130,15 @@ void Recursor_(void) {
 /* entry-point (shouldn't have a prototype) */
 int main(int argc, char **argv) {
 	int ret;
+
 	/* set up; fixme: dangerous! use stdarg, have a -delete, -write, and -help */
 	if(argc <= 1) { usage(argv[0]); return EXIT_SUCCESS; }
 	fprintf(stderr, "Changing directory to <%s>.\n", argv[1]);
 	if(chdir(argv[1])) { perror(argv[1]); return EXIT_FAILURE; }
+
+	/* make sure that umask is set so that others can read what we create */
+	umask(S_IWGRP | S_IWOTH);
+
 	/* recursing; fixme: this should be configurable */
 	if(!Recursor(tmplIndex, tmplSitemap, tmplNewsfeed)) return EXIT_FAILURE;
 	ret = recurse(0);
