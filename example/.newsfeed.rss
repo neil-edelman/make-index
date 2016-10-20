@@ -1,0 +1,22 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!DOCTYPE rss>
+
+<rss version = "2.0"><channel>
+	<title>Arr</title>
+	<description>Yaarrr, news from afar.</description>
+	<language>en</language>
+	<pubdate>@(now)</pubdate>
+	<lastbuilddate>@(now)</lastbuilddate>
+
+~
+	<item>
+		<title>@(title)</title>
+		<link>@(pwd){/}@(newsname)</link>
+		<description>
+@(news)		</description>
+		<author>Neil</author>
+		<pubdate>@(date)</pubdate>
+	</item>
+
+~
+</channel></rss>

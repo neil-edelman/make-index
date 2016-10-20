@@ -1,0 +1,29 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+<title>Arr! @(pwd){/}</title>
+<meta name = "Content-type" http-equiv = "Content-Type" content = "text/html; charset=us-ascii">
+<meta name = "Keywords" content = "@(pwd){, }arr">
+<meta name = "Author" content = "Neil">
+<meta name = "Generator" content = "This pristine code lies unmarred by infantile editors!">
+</head>
+
+<body>
+<p>
+Date: @(now)
+</p>
+<p>
+@(content)</p>
+<ul>
+@(files){<li>
+<img src = "@(fileicon)" alt = "[ @(filealt) ]"> This is the <a href = "@(filehref)">@(filename)</a>;
+desciption: @(filedesc)</li>
+}</ul>
+<p>
+From http://something/@(pwd){/} or / is @(root){/}.
+</p>
+</body>
+
+</html>
