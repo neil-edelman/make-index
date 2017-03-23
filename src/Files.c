@@ -1,9 +1,15 @@
 /* Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
- GNU General Public License, see copying.txt */
+ GNU General Public License, see copying.txt, or
+ \url{ https://opensource.org/licenses/GPL-3.0 }.
 
-/* Files is a list of File (private class defiend below,) the Files can have
- * a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
- * Created by Neil Edelman on 2008-03-24. */
+ Files is a list of File (private class defiend below,) the Files can have
+ a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
+
+ @file		Files
+ @author	Neil
+ @version	0.9; 2017-03
+ @since		0.8; 2012
+ 			0.8; 2008-03-24 */
 
 #include <stdlib.h>   /* malloc free */
 #include <stdio.h>    /* fprintf */
@@ -35,12 +41,12 @@ struct File {
 };
 
 /* private */
-struct File *File(const char *name, const int size, const int isDir);
-void File_(struct File *file);
-int FileInsert(struct File *file, struct File **startAddr);
+static struct File *File(const char *name, const int size, const int isDir);
+static void File_(struct File *file);
+static int FileInsert(struct File *file, struct File **startAddr);
 
-/* Alert! parent->this must be the 'file' (directory) that you want to create */
-struct Files *Files(const struct Files *parent, int (*filter)(const struct Files *, const char *)) {
+/** parent->this must be the 'file' (directory) that you want to create */
+struct Files *Files(const struct Files *parent, const FilesFilter filter) {
 	char          *dirName;
 	struct dirent *de;
 	struct stat   st;
@@ -86,6 +92,7 @@ struct Files *Files(const struct Files *parent, int (*filter)(const struct Files
 	if(closedir(dir)) { perror(dirCurrent); }
 	return files;
 }
+/** Destructor. */
 void Files_(struct Files *files) {
 	if(!files) return;
 	File_(files->firstDir); /* cascading delete */
@@ -95,7 +102,7 @@ void Files_(struct Files *files) {
 /* this is how we used to access files before 'invisiblity'
 			if((f->this)) return f->this->next ? -1 : f->firstFile ? -1 : 0;
 			if((f->this)) return f->this->next ? -1 : 0; */
-/* this is how we access the files sequentially */
+/** This is how we access the files sequentially. */
 int FilesAdvance(struct Files *f) {
 	static enum { files, dirs } type = dirs;
 	if(!f) return 0;
@@ -113,17 +120,17 @@ int FilesAdvance(struct Files *f) {
 	}
 	return 0;
 }
-/* doesn't have a parent */
+/** Doesn't have a parent? */
 int FilesIsRoot(const struct Files *f) {
 	if(!f) return 0;
 	return (f->parent) ? 0 : -1;
 }
-/* resets the list of favourites */
+/** Resets the list of favourites. */
 void FilesSetPath(struct Files *f) {
 	if(!f) return;
 	for( ; f->parent; f = f->parent) f->parent->favourite = f;
 }
-/* after FilesSetFarourite, this enumerates them */
+/** After FilesSetFarourite, this enumerates them. */
 char *FilesEnumPath(struct Files *f) {
 	char *name;
 	if(!f) return 0;
@@ -134,15 +141,17 @@ char *FilesEnumPath(struct Files *f) {
 	return name;
 }
 
-/* takes from files->this */
+/** @return The file name of the selected file. */
 char *FilesName(const struct Files *files) {
 	if(!files || !files->this) return 0;
 	return files->this->name;
 }
+/** @return File size of the selected file. */
 int FilesSize(const struct Files *files) {
 	if(!files || !files->this) return 0;
 	return files->this->size;
 }
+/** @return Whether the file is a directory. */
 int FilesIsDir(const struct Files *files) {
 	if(!files || !files->this) return 0;
 	return files->this->isDir;
@@ -150,7 +159,7 @@ int FilesIsDir(const struct Files *files) {
 
 /* this is just a list of filenames, (not public) "class File" */
 
-struct File *File(const char *name, const int size, const int isDir) {
+static struct File *File(const char *name, const int size, const int isDir) {
 	int len;
 	struct File *file;
 	if(!name || !*name) { fprintf(stderr, "File: file has no name.\n"); return 0; }
@@ -165,7 +174,7 @@ struct File *File(const char *name, const int size, const int isDir) {
 	/* fprintf(stderr, " File(\"%s\" %p)\n", file->name, (void *)file); debug . . . caught bug! */
 	return file;
 }
-void File_(struct File *file) {
+static void File_(struct File *file) {
 	struct File *next;
 	/* delete ALL the list of files (not just the one) */
 	for( ; file; file = next) {
@@ -174,7 +183,7 @@ void File_(struct File *file) {
 		free(file);
 	}
 }
-int FileInsert(struct File *file, struct File **startAddr) {
+static int FileInsert(struct File *file, struct File **startAddr) {
 	struct File *start;
 	struct File *prev = 0, *ptr = 0;
 	if(!file || !startAddr) { fprintf(stderr, "File::insert: file is null, not included.\n"); return 0; }

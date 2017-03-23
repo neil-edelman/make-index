@@ -1,7 +1,7 @@
 Copyright (C) 2008, 2012, 2013 Neil Edelman, see copying.txt.
 neil dot edelman each mail dot mcgill dot ca
 
-Version 0.8.
+Version 0.9.
 
 Usage: MakeIndex <directory>
 

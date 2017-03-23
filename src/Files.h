@@ -1,7 +1,11 @@
+/** \see{Files}. */
 struct Files;
 struct Recursor;
 
-struct Files *Files(const struct Files *parent, int (*filter)(const struct Files *, const char *));
+/** Returns a boolean value. */
+typedef int (*FilesFilter)(const struct Files *, const char *);
+
+struct Files *Files(const struct Files *parent, const FilesFilter filter);
 void Files_(struct Files *files);
 int FilesAdvance(struct Files *files);
 int FilesIsRoot(const struct Files *f);
