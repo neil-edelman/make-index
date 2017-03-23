@@ -1,4 +1,4 @@
-/** \see{Files}. */
+/** See \see{Files}. */
 struct Files;
 struct Recursor;
 

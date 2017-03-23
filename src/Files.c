@@ -1,4 +1,4 @@
-/* Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
+/** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
  GNU General Public License, see copying.txt, or
  \url{ https://opensource.org/licenses/GPL-3.0 }.
 
@@ -7,9 +7,10 @@
 
  @file		Files
  @author	Neil
- @version	0.9; 2017-03
- @since		0.8; 2012
- 			0.8; 2008-03-24 */
+ @version	0.9; 2017-03 fixed pedantic warnings
+ @since		0.8; 2013-07 case-insensitive sort
+			0.7; 2012    sth.dsth.d handled properly
+ 			0.6; 2008-03-24 */
 
 #include <stdlib.h>   /* malloc free */
 #include <stdio.h>    /* fprintf */

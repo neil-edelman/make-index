@@ -1,0 +1,241 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+<!-- steal these colour values from JavaDocs; meh -->
+<style type = "text/css">
+	a:link,  a:visited { color: #4a6782; }
+	a:hover, a:focus   { color: #bb7a2a; }
+	a:active           { color: #4A6782; }
+	tr:nth-child(even) { background: #dee3e9; }
+	div {
+		margin:  4px 0;
+		padding: 0 4px 4px 4px;
+	}
+	table      { width: 100%; }
+	td         { padding: 4px; }
+	h3, h1 {
+		color: #2c4557;
+		background-color: #dee3e9;
+		padding:          4px;
+	}
+	h3 {
+		margin:           0 -4px;
+		padding:          4px;
+	}
+</style>
+<title>Files</title>
+</head>
+
+
+<body>
+
+<h1>Files</h1>
+
+<ul>
+	<li><a href = "#_declarations">Declarations</a></li>
+	<li><a href = "#_summary">Function Summary</a></li>
+	<li><a href = "#_detail">Function Detail</a></li>
+</ul>
+
+<p>
+Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
+ GNU General Public License, see copying.txt, or
+ <a href = "https://opensource.org/licenses/GPL-3.0">https://opensource.org/licenses/GPL-3.0</a>.
+</p>
+<p>
+ Files is a list of File (private class defiend below,) the Files can have
+ a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
+</p>
+<dl>
+	<dt>author:</dt>
+	<dd>Neil</dd>
+	<dt>version:</dt>
+	<dd>0.9; 2017-03 fixed pedantic warnings</dd>
+	<dt>since:</dt>
+	<dd>0.8; 2013-07 case-insensitive sort
+			0.7; 2012    sth.dsth.d handled properly
+ 			0.6; 2008-03-24</dd>
+</dl>
+
+
+<a name = "_declarations"><!-- --></a><h2>Declarations</h2>
+
+<div><a name = "struct Files"><!-- --></a>
+<h3>struct Files</h3>
+<pre><b>struct Files</b></pre>
+<p>
+See <a href = "#Files">Files</a>.
+</p>
+<dl>
+</dl>
+</div>
+
+<div><a name = "typedef int (*FilesFilter)(const struct Files *, const char *)"><!-- --></a>
+<h3>typedef int (*FilesFilter)(const struct Files *, const char *)</h3>
+<pre><b>typedef int (*FilesFilter)(const struct Files *, const char *)</b></pre>
+<p>
+Returns a boolean value.
+</p>
+<dl>
+</dl>
+</div>
+
+
+<a name = "_summary"><!-- --></a><h2>Function Summary</h2>
+
+<table>
+<tr><th>Return Type</th><th>Function Name</th><th>Argument List</th></tr>
+<tr>
+	<td>struct Files *</td>
+	<td><a href = "#Files">Files</a></td>
+	<td>const struct Files *parent, const FilesFilter filter</td>
+</tr>
+<tr>
+	<td>void</td>
+	<td><a href = "#Files_">Files_</a></td>
+	<td>struct Files *files</td>
+</tr>
+<tr>
+	<td>int</td>
+	<td><a href = "#FilesAdvance">FilesAdvance</a></td>
+	<td>struct Files *f</td>
+</tr>
+<tr>
+	<td>int</td>
+	<td><a href = "#FilesIsRoot">FilesIsRoot</a></td>
+	<td>const struct Files *f</td>
+</tr>
+<tr>
+	<td>void</td>
+	<td><a href = "#FilesSetPath">FilesSetPath</a></td>
+	<td>struct Files *f</td>
+</tr>
+<tr>
+	<td>char *</td>
+	<td><a href = "#FilesEnumPath">FilesEnumPath</a></td>
+	<td>struct Files *f</td>
+</tr>
+<tr>
+	<td>char *</td>
+	<td><a href = "#FilesName">FilesName</a></td>
+	<td>const struct Files *files</td>
+</tr>
+<tr>
+	<td>int</td>
+	<td><a href = "#FilesSize">FilesSize</a></td>
+	<td>const struct Files *files</td>
+</tr>
+<tr>
+	<td>int</td>
+	<td><a href = "#FilesIsDir">FilesIsDir</a></td>
+	<td>const struct Files *files</td>
+</tr>
+</table>
+
+
+<a name = "_detail"><!-- --></a><h2>Function Detail</h2>
+
+<div><a name = "Files"><!-- --></a>
+<h3>Files</h3>
+<pre>struct Files * <b>Files</b> (const struct Files *parent, const FilesFilter filter)</pre>
+<p>
+parent-&gt;this must be the 'file' (directory) that you want to create
+</p>
+<dl>
+</dl>
+</div>
+
+<div><a name = "Files_"><!-- --></a>
+<h3>Files_</h3>
+<pre>void <b>Files_</b> (struct Files *files)</pre>
+<p>
+Destructor.
+</p>
+<dl>
+</dl>
+</div>
+
+<div><a name = "FilesAdvance"><!-- --></a>
+<h3>FilesAdvance</h3>
+<pre>int <b>FilesAdvance</b> (struct Files *f)</pre>
+<p>
+This is how we access the files sequentially.
+</p>
+<dl>
+</dl>
+</div>
+
+<div><a name = "FilesIsRoot"><!-- --></a>
+<h3>FilesIsRoot</h3>
+<pre>int <b>FilesIsRoot</b> (const struct Files *f)</pre>
+<p>
+Doesn't have a parent?
+</p>
+<dl>
+</dl>
+</div>
+
+<div><a name = "FilesSetPath"><!-- --></a>
+<h3>FilesSetPath</h3>
+<pre>void <b>FilesSetPath</b> (struct Files *f)</pre>
+<p>
+Resets the list of favourites.
+</p>
+<dl>
+</dl>
+</div>
+
+<div><a name = "FilesEnumPath"><!-- --></a>
+<h3>FilesEnumPath</h3>
+<pre>char * <b>FilesEnumPath</b> (struct Files *f)</pre>
+<p>
+After FilesSetFarourite, this enumerates them.
+</p>
+<dl>
+</dl>
+</div>
+
+<div><a name = "FilesName"><!-- --></a>
+<h3>FilesName</h3>
+<pre>char * <b>FilesName</b> (const struct Files *files)</pre>
+<p>
+</p>
+<p>
+</p>
+<dl>
+	<dt>return:</dt>
+	<dd>The file name of the selected file.</dd>
+</dl>
+</div>
+
+<div><a name = "FilesSize"><!-- --></a>
+<h3>FilesSize</h3>
+<pre>int <b>FilesSize</b> (const struct Files *files)</pre>
+<p>
+</p>
+<p>
+</p>
+<dl>
+	<dt>return:</dt>
+	<dd>File size of the selected file.</dd>
+</dl>
+</div>
+
+<div><a name = "FilesIsDir"><!-- --></a>
+<h3>FilesIsDir</h3>
+<pre>int <b>FilesIsDir</b> (const struct Files *files)</pre>
+<p>
+</p>
+<p>
+</p>
+<dl>
+	<dt>return:</dt>
+	<dd>Whether the file is a directory.</dd>
+</dl>
+</div>
+
+
+</body>
+</html>
