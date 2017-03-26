@@ -5,12 +5,11 @@
  Files is a list of File (private class defiend below,) the Files can have
  a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
 
- @file		Files
+ @title		Files
  @author	Neil
- @version	0.9; 2017-03 fixed pedantic warnings
- @since		0.8; 2013-07 case-insensitive sort
-			0.7; 2012    sth.dsth.d handled properly
- 			0.6; 2008-03-24 */
+ @std		C89/90
+ @version	1.1; 2017-03 fixed pedantic warnings; took out arg
+ @since		0.6; 2008-03-24 */
 
 #include <stdlib.h>   /* malloc free */
 #include <stdio.h>    /* fprintf */
@@ -20,9 +19,9 @@
 #include "Files.h"
 
 /* constants */
-const char       *dirCurrent = "."; /* used in multiple files */
-const char       *dirParent  = "..";
-static const int maxFilename = 128;
+const char          *dirCurrent = "."; /* used in multiple files */
+const char          *dirParent  = "..";
+static const size_t maxFilename = 128;
 
 /* public */
 struct Files {
@@ -161,10 +160,10 @@ int FilesIsDir(const struct Files *files) {
 /* this is just a list of filenames, (not public) "class File" */
 
 static struct File *File(const char *name, const int size, const int isDir) {
-	int len;
+	size_t len;
 	struct File *file;
 	if(!name || !*name) { fprintf(stderr, "File: file has no name.\n"); return 0; }
-	if((len = strlen(name)) > maxFilename) { fprintf(stderr, "File: file name \"%s\" is too long (%d.)\n", name, maxFilename); return 0; }
+	if((len = strlen(name)) > maxFilename) { fprintf(stderr, "File: file name \"%s\" is too long (%lu.)\n", name, maxFilename); return 0; }
 	file = malloc(sizeof(struct File) + (len + 1));
 	if(!file) { File_(file); return 0; }
 	file->next  = 0;

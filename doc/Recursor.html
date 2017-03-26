@@ -25,13 +25,13 @@
 		padding:          4px;
 	}
 </style>
-<title></title>
+<title>Parser</title>
 </head>
 
 
 <body>
 
-<h1></h1>
+<h1>Parser</h1>
 
 <ul>
 	<li><a href = "#_declarations">Declarations</a></li>
@@ -41,18 +41,85 @@
 
 <p>
 Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
- GNU General Public License, see copying.txt
+GNU General Public License, see copying.txt
 </p>
 <p>
- This is the main program. I didn't know what to call it.
+<em>MakeIndex</em> is a simple content management system that generates static
+content, (mostly index.html,) on all the directories rooted at the directory
+specified by the argument. It is based on a template file, ".index.html" and
+".newsfeed.rss". Also included are files to summarise the directory structure
+for a <em>xml</em> site map, compatible with Google, and any <em>.news</em> for an <em>rss</em>
+feed. It takes one argument, &lt;directory&gt;, which is the root of the recursion.
+</p>
+<p>
+There should be an &lt;example&gt; directory that has a bunch of files in it. Run
+<em>bin/MakeIndex example/</em>; it should make a webpage out of the directory
+structure and <em>.index.html</em>, open <em>example/index.html</em> after running to see.
+</p>
+<ul>
+	<li>
+If the <em>.index.html</em> file exists in the &lt;directory&gt;, prints &lt;index.html&gt;
+recursively; overwrites any <em>index.html</em> on all the directories rooted at
+&lt;directory&gt;;
+	</li>
+	<li>
+if the <em>.sitemap.xml</em> file exists in &lt;directory&gt;, prints (and overwrites) an
+index called <em>sitemap.xml</em>;
+	</li>
+	<li>
+if the <em>.newsfeed.rss</em> file exists in &lt;directory&gt;, prints (and overwrites)
+to <em>newsfeed.rss</em> all the <em>.news</em> files (if there are any.)
+	</li>
+</ul>
+<ul>
+	<li>
+Treats <em>.d</em> as a description of the file without the <em>.d</em>;
+if this is an empty text-file or a zero-byte file, it skips over this file.
+	</li>
+	<li>
+treats <em>index.d</em> as a description of the directory;
+	</li>
+	<li>
+treats <em>content.d</em> as an in-depth description of the directory,
+replacing &lt;index.d&gt; when in the directory;
+	</li>
+	<li>
+treats <em>.d.jpg</em> as a image that will go with the description;
+	</li>
+	<li>
+treats <em>.news</em> as a newsworthy item; the format of this file is ISO 8601
+date (YYYY-MM-DD,) next line title;
+	</li>
+	<li>
+treats <em>.link</em> as a link with the href in the file.
+	</li>
+</ul>
+<p>
+<em>.index.html</em>, <em>.sitemap.xml</em>, <em>.newsfeed.rss</em>, see <em>Parser</em> for recognised
+symbols. Assumes '..' is the parent directory, '.' is the current directory,
+and '/' is the directory separator; works for UNIX, MacOS, Windows.
+If this is not the case, the constants are in <em>Files.c</em>.
 </p>
 <dl>
-	<dt>author:</dt>
+	<dt>minimum standard</dt>
+	<dd>C89/90</dd>
+	<dt>author</dt>
 	<dd>Neil</dd>
-	<dt>version:</dt>
-	<dd>1.0; 2016-09-19 Added umask</dd>
-	<dt>since:</dt>
-	<dd>1.0; 2008-03-27</dd>
+	<dt>version</dt>
+	<dd>1.1; 2017-03 fixed pedantic warnings; took out arg</dd>
+	<dt>since</dt>
+	<dd>1.0; 2016-09-19 Added umask
+			0.8; 2013-07 case-insensitive sort
+			0.7; 2012    sth.dsth.d handled properly
+			0.6; 2008-03-27</dd>
+	<dt>fixme</dt>
+	<dd>Don't have &lt;directory&gt; be an argument; just do it in the current.</dd>
+	<dt>fixme</dt>
+	<dd>Have a subset of LaTeX converted into html for the .d files?</dd>
+	<dt>fixme</dt>
+	<dd>Encoding is an issue; especially the newsfeed, 7bit.</dd>
+	<dt>fixme</dt>
+	<dd>It's not robust; eg @(files)<em>@(files){Don't do this.}</em>.</dd>
 </dl>
 
 

@@ -1,11 +1,52 @@
 /** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
  GNU General Public License, see copying.txt
 
- This is the main program. I didn't know what to call it.
- 
+ {MakeIndex} is a simple content management system that generates static
+ content, (mostly index.html,) on all the directories rooted at the directory
+ specified by the argument. It is based on a template file, ".index.html" and
+ ".newsfeed.rss". Also included are files to summarise the directory structure
+ for a {xml} site map, compatible with Google, and any {.news} for an {rss}
+ feed. It takes one argument, <directory>, which is the root of the recursion.
+
+ There should be an <example> directory that has a bunch of files in it. Run
+ {bin/MakeIndex example/}; it should make a webpage out of the directory
+ structure and {.index.html}, open {example/index.html} after running to see.
+
+ * If the {.index.html} file exists in the <directory>, prints <index.html>
+   recursively; overwrites any {index.html} on all the directories rooted at
+   <directory>;
+ * if the {.sitemap.xml} file exists in <directory>, prints (and overwrites) an
+   index called {sitemap.xml};
+ * if the {.newsfeed.rss} file exists in <directory>, prints (and overwrites)
+   to {newsfeed.rss} all the {.news} files (if there are any.)
+
+ * Treats {.d} as a description of the file without the {.d};
+   if this is an empty text-file or a zero-byte file, it skips over this file.
+ * treats {index.d} as a description of the directory;
+ * treats {content.d} as an in-depth description of the directory,
+   replacing <index.d> when in the directory;
+ * treats {.d.jpg} as a image that will go with the description;
+ * treats {.news} as a newsworthy item; the format of this file is ISO 8601
+   date (YYYY-MM-DD,) next line title;
+ * treats {.link} as a link with the href in the file.
+
+ {.index.html}, {.sitemap.xml}, {.newsfeed.rss}, see {Parser} for recognised
+ symbols. Assumes '..' is the parent directory, '.' is the current directory,
+ and '/' is the directory separator; works for UNIX, MacOS, Windows.
+ If this is not the case, the constants are in {Files.c}.
+
+ @title		Parser
  @author	Neil
- @version	1.0; 2016-09-19 Added umask
- @since		1.0; 2008-03-27 */
+ @std		C89/90
+ @version	1.1; 2017-03 fixed pedantic warnings; took out arg
+ @since		1.0; 2016-09-19 Added umask
+			0.8; 2013-07 case-insensitive sort
+			0.7; 2012    sth.dsth.d handled properly
+			0.6; 2008-03-27
+ @fixme		Don't have <directory> be an argument; just do it in the current.
+ @fixme		Have a subset of LaTeX converted into html for the .d files?
+ @fixme		Encoding is an issue; especially the newsfeed, 7bit.
+ @fixme		It's not robust; eg @(files){@(files){Don't do this.}}. */
 
 #include <stdlib.h>   /* malloc free fgets */
 #include <stdio.h>    /* fprintf FILE */
@@ -38,7 +79,7 @@ void usage(const char *programme);
 /* constants */
 static const int versionMajor  = 0;
 static const int versionMinor  = 8;
-static const int granularity   = 1024;
+static const size_t granularity= 1024;
 static const int maxRead       = 0x1000;
 const char *htmlIndex          = "index.html"; /* in multiple files */
 static const char *xmlSitemap  = "sitemap.xml";
@@ -50,15 +91,15 @@ static const char *tmplNewsfeed= ".newsfeed.rss";
 extern const char *dirCurrent;
 extern const char *dirParent;
 /* in Widget.c */
-extern const char *desc;
-extern const char *news;
+extern const char *dot_desc;
+extern const char *dot_news;
 
 /* there can only be one recursor at a time, sorry */
 static struct Recursor *r = 0;
 
 /* public */
-struct Recursor *Recursor(const char *index, const char *map, const char *news) {
-	if(!index || !index || !map || !news) return 0;
+struct Recursor *Recursor(const char *idx, const char *map, const char *news) {
+	if(!idx || !idx || !map || !news) return 0;
 	if(r) { fprintf(stderr, "Recursor: there is already a Recursor.\n"); return 0; }
 	r = malloc(sizeof(struct Recursor));
 	if(!r) { perror("recursor"); Recursor_(); return 0; }
@@ -74,8 +115,8 @@ struct Recursor *Recursor(const char *index, const char *map, const char *news) 
 	if(!(r->sitemap  = fopen(xmlSitemap,  "w"))) perror(xmlSitemap);
 	if(!(r->newsfeed = fopen(rssNewsfeed, "w"))) perror(rssNewsfeed);
 	/* read from the input files */
-	if(                !(r->indexString   = readFile(index))) {
-		fprintf(stderr, "Recursor: to make an index, create the file <%s>.\n", index);
+	if(                !(r->indexString   = readFile(idx))) {
+		fprintf(stderr, "Recursor: to make an index, create the file <%s>.\n", idx);
 	}
 	if(r->sitemap  && !(r->sitemapString  = readFile(map))) {
 		fprintf(stderr, "Recursor: to make an sitemap, create the file <%s>.\n", map);
@@ -85,7 +126,7 @@ struct Recursor *Recursor(const char *index, const char *map, const char *news) 
 	}
 	/* create Parsers attached to them */
 	if(r->indexString    && !(r->indexParser    = Parser(r->indexString))) {
-		fprintf(stderr, "Recursor: error generating Parser from <%s>.\n", index);
+		fprintf(stderr, "Recursor: error generating Parser from <%s>.\n", idx);
 	}
 	if(r->sitemapString  && !(r->sitemapParser  = Parser(r->sitemapString))) {
 		fprintf(stderr, "Recursor: error generating Parser from <%s>.\n", map);		
@@ -117,11 +158,11 @@ void Recursor_(void) {
 		ParserParse(r->newsfeedParser, 0, 0,  r->newsfeed);
 	}
 	if(r->newsfeed && fclose(r->newsfeed)) perror(rssNewsfeed);
-	Parser_(r->indexParser);
+	Parser_(&r->indexParser);
 	free(r->indexString);
-	Parser_(r->sitemapParser);
+	Parser_(&r->sitemapParser);
 	free(r->sitemapString);
-	Parser_(r->newsfeedParser);
+	Parser_(&r->newsfeedParser);
 	free(r->newsfeedString);	
 	free(r);
 	r = 0;
@@ -137,7 +178,7 @@ int main(int argc, char **argv) {
 	if(chdir(argv[1])) { perror(argv[1]); return EXIT_FAILURE; }
 
 	/* make sure that umask is set so that others can read what we create */
-	umask(S_IWGRP | S_IWOTH);
+	umask((mode_t)(S_IWGRP | S_IWOTH));
 
 	/* recursing; fixme: this should be configurable */
 	if(!Recursor(tmplIndex, tmplSitemap, tmplNewsfeed)) return EXIT_FAILURE;
@@ -153,13 +194,13 @@ int filter(const struct Files *files, const char *fn) {
 	FILE *fd;
 	if(!r) { fprintf(stderr, "Recusor::filter: recursor not initialised.\n"); return 0; }
 	/* *.d[.0]* */
-	for(str = (char *)fn; (str = strstr(str, desc)); ) {
-		str += strlen(desc);
+	for(str = (char *)fn; (str = strstr(str, dot_desc)); ) {
+		str += strlen(dot_desc);
 		if(*str == '\0' || *str == '.') return 0;
 	}
 	/* *.news$ */
-	if((str = strstr(fn, news))) {
-		str += strlen(news);
+	if((str = strstr(fn, dot_news))) {
+		str += strlen(dot_news);
 		if(*str == '\0') {
 			if(WidgetSetNews(fn) && ParserParse(r->newsfeedParser, files, 0, r->newsfeed)) {
 				ParserRewind(r->newsfeedParser);
@@ -176,12 +217,12 @@ int filter(const struct Files *files, const char *fn) {
 	/* index.html */
 	if(!strcmp(fn, htmlIndex))  return 0;
 	/* add .d, check 1 line for \n (hmm, this must be a real time waster) */
-	if(strlen(fn) > sizeof(filed) - strlen(desc) - 1) {
+	if(strlen(fn) > sizeof(filed) - strlen(dot_desc) - 1) {
 		fprintf(stderr, "Recusor::filter: regected '%s' because it was too long (%d.)\n", fn, (int)sizeof(filed));
 		return 0;
 	}
 	strcpy(filed, fn);
-	strcat(filed, desc);
+	strcat(filed, dot_desc);
 	if((fd = fopen(filed, "r"))) {
 		int ch = fgetc(fd);
 		if(ch == '\n' || ch == '\r' || ch == EOF) {
@@ -223,19 +264,20 @@ int recurse(const struct Files *parent) {
 }
 char *readFile(const char *filename) {
 	char *buf = 0, *newBuf;
-	int bufPos = 0, bufSize = 0, read;
+	size_t bufPos = 0, bufSize = 0, rd;
 	FILE *fp;
 	if(!filename) return 0;
 	if(!(fp = fopen(filename, "r"))) { perror(filename); return 0; }
 	for( ; ; ) {
 		newBuf = realloc(buf, (bufSize += granularity) * sizeof(char));
 		if(!newBuf) { perror(filename); free(buf); return 0; }
-		buf = newBuf;
-		read   =  fread(buf + bufPos, sizeof(char), granularity, fp);
-		bufPos += read;
-		if(read < granularity) { buf[bufPos] = '\0'; break; }
+		buf     = newBuf;
+		rd      = fread(buf + bufPos, sizeof(char), granularity, fp);
+		bufPos += rd;
+		if(rd < granularity) { buf[bufPos] = '\0'; break; }
 	}
-	fprintf(stderr, "Opened '%s' and alloted %d bytes to read %d characters.\n", filename, bufSize, bufPos);
+	fprintf(stderr, "Opened '%s' and alloted %lu bytes to read %lu "
+		"characters.\n", filename, bufSize, bufPos);
 	if(fclose(fp)) perror(filename);
 	return buf; /** you must free() the memory! */
 }

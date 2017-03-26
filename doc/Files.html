@@ -41,22 +41,22 @@
 
 <p>
 Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
- GNU General Public License, see copying.txt, or
- <a href = "https://opensource.org/licenses/GPL-3.0">https://opensource.org/licenses/GPL-3.0</a>.
+GNU General Public License, see copying.txt, or
+<a href = "https://opensource.org/licenses/GPL-3.0">https://opensource.org/licenses/GPL-3.0</a>.
 </p>
 <p>
- Files is a list of File (private class defiend below,) the Files can have
- a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
+Files is a list of File (private class defiend below,) the Files can have
+a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
 </p>
 <dl>
-	<dt>author:</dt>
+	<dt>minimum standard</dt>
+	<dd>C89/90</dd>
+	<dt>author</dt>
 	<dd>Neil</dd>
-	<dt>version:</dt>
-	<dd>0.9; 2017-03 fixed pedantic warnings</dd>
-	<dt>since:</dt>
-	<dd>0.8; 2013-07 case-insensitive sort
-			0.7; 2012    sth.dsth.d handled properly
- 			0.6; 2008-03-24</dd>
+	<dt>version</dt>
+	<dd>1.1; 2017-03 fixed pedantic warnings; took out arg</dd>
+	<dt>since</dt>
+	<dd>0.6; 2008-03-24</dd>
 </dl>
 
 
@@ -200,12 +200,8 @@ After FilesSetFarourite, this enumerates them.
 <div><a name = "FilesName"><!-- --></a>
 <h3>FilesName</h3>
 <pre>char * <b>FilesName</b> (const struct Files *files)</pre>
-<p>
-</p>
-<p>
-</p>
 <dl>
-	<dt>return:</dt>
+	<dt>return</dt>
 	<dd>The file name of the selected file.</dd>
 </dl>
 </div>
@@ -213,12 +209,8 @@ After FilesSetFarourite, this enumerates them.
 <div><a name = "FilesSize"><!-- --></a>
 <h3>FilesSize</h3>
 <pre>int <b>FilesSize</b> (const struct Files *files)</pre>
-<p>
-</p>
-<p>
-</p>
 <dl>
-	<dt>return:</dt>
+	<dt>return</dt>
 	<dd>File size of the selected file.</dd>
 </dl>
 </div>
@@ -226,12 +218,8 @@ After FilesSetFarourite, this enumerates them.
 <div><a name = "FilesIsDir"><!-- --></a>
 <h3>FilesIsDir</h3>
 <pre>int <b>FilesIsDir</b> (const struct Files *files)</pre>
-<p>
-</p>
-<p>
-</p>
 <dl>
-	<dt>return:</dt>
+	<dt>return</dt>
 	<dd>Whether the file is a directory.</dd>
 </dl>
 </div>

@@ -1,6 +1,5 @@
 /** See \see{Files}. */
 struct Files;
-struct Recursor;
 
 /** Returns a boolean value. */
 typedef int (*FilesFilter)(const struct Files *, const char *);

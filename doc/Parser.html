@@ -45,31 +45,90 @@
 
 <a name = "_declarations"><!-- --></a><h2>Declarations</h2>
 
+<div><a name = "struct Parser"><!-- --></a>
+<h3>struct Parser</h3>
+<pre><b>struct Parser</b></pre>
+<p>
+See <a href = "#Parser">Parser</a>.
+</p>
+<dl>
+</dl>
+</div>
+
+<div><a name = "struct Files"><!-- --></a>
+<h3>struct Files</h3>
+<pre><b>struct Files</b></pre>
+<p>
+Dependancy on <em>Files</em>
+</p>
+<dl>
+</dl>
+</div>
+
+<div><a name = "typedef int (*ParserWidget)(const struct Files *, FILE *fp)"><!-- --></a>
+<h3>typedef int (*ParserWidget)(const struct Files *, FILE *fp)</h3>
+<pre><b>typedef int (*ParserWidget)(const struct Files *, FILE *fp)</b></pre>
+<p>
+All <em>ParserWidget</em>s are in <em>Widget.c</em>
+</p>
+<dl>
+</dl>
+</div>
+
 
 <a name = "_summary"><!-- --></a><h2>Function Summary</h2>
 
 <table>
 <tr><th>Return Type</th><th>Function Name</th><th>Argument List</th></tr>
 <tr>
-	<td>const struct Symbol *</td>
-	<td><a href = "#match">match</a></td>
-	<td>const char *str, const char *end</td>
+	<td>struct Parser *</td>
+	<td><a href = "#Parser">Parser</a></td>
+	<td>const char *str</td>
+</tr>
+<tr>
+	<td>void</td>
+	<td><a href = "#Parser_">Parser_</a></td>
+	<td>struct Parser **const p_ptr</td>
+</tr>
+<tr>
+	<td>void</td>
+	<td><a href = "#ParserRewind">ParserRewind</a></td>
+	<td>struct Parser *p</td>
 </tr>
 <tr>
 	<td>int</td>
 	<td><a href = "#ParserParse">ParserParse</a></td>
-	<td>struct Parser *p, const struct Files *f, int invisible, FILE *fp</td>
+	<td>struct Parser *p, const struct Files *f, int invisible,
+	FILE *fp</td>
 </tr>
 </table>
 
 
 <a name = "_detail"><!-- --></a><h2>Function Detail</h2>
 
-<div><a name = "match"><!-- --></a>
-<h3>match</h3>
-<pre>const struct Symbol * <b>match</b> (const char *str, const char *end)</pre>
+<div><a name = "Parser"><!-- --></a>
+<h3>Parser</h3>
+<pre>struct Parser * <b>Parser</b> (const char *str)</pre>
+<dl>
+	<dt>return</dt>
+	<dd>Creates a parser for the string, <em>str</em>.</dd>
+</dl>
+</div>
+
+<div><a name = "Parser_"><!-- --></a>
+<h3>Parser_</h3>
+<pre>void <b>Parser_</b> (struct Parser **const p_ptr)</pre>
+<dl>
+	<dt>parameter: p_ptr</dt>
+	<dd>A pointer to the <em>Parser</em> that's to be destucted.</dd>
+</dl>
+</div>
+
+<div><a name = "ParserRewind"><!-- --></a>
+<h3>ParserRewind</h3>
+<pre>void <b>ParserRewind</b> (struct Parser *p)</pre>
 <p>
-binary search
+Resets the parser, <em>p</em>.
 </p>
 <dl>
 </dl>
@@ -77,11 +136,22 @@ binary search
 
 <div><a name = "ParserParse"><!-- --></a>
 <h3>ParserParse</h3>
-<pre>int <b>ParserParse</b> (struct Parser *p, const struct Files *f, int invisible, FILE *fp)</pre>
+<pre>int <b>ParserParse</b> (struct Parser *p, const struct Files *f, int invisible,
+	FILE *fp)</pre>
 <p>
-parse, called recusively (invisible, hack) fixme: this fn needs rewriting, messy
+Parse, called recursively.
 </p>
 <dl>
+	<dt>parameter: f</dt>
+	<dd>Called in the handler to <em>ParserWidget</em>s.</dd>
+	<dt>parameter: invisible</dt>
+	<dd>No output.</dd>
+	<dt>parameter: fp</dt>
+	<dd>Output.</dd>
+	<dt>fixme</dt>
+	<dd>This fn needs rewriting; messy.</dd>
+	<dt>fixme</dt>
+	<dd>Invisible, hack.</dd>
 </dl>
 </div>
 
