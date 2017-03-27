@@ -25,13 +25,13 @@
 		padding:          4px;
 	}
 </style>
-<title></title>
+<title>Widget</title>
 </head>
 
 
 <body>
 
-<h1></h1>
+<h1>Widget</h1>
 
 <ul>
 	<li><a href = "#_declarations">Declarations</a></li>
@@ -39,7 +39,37 @@
 	<li><a href = "#_detail">Function Detail</a></li>
 </ul>
 
+<p>
+Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
+GNU General Public License, see copying.txt
+</p>
+<p>
+Widgets like @(files), @(pwd). To create a widget:
+</p>
+<ul>
+	<li>
+stick the code below implementing <em>ParserWidget</em>;
+	</li>
+	<li>
+create a prototype in Widget.h;
+	</li>
+	<li>
+in <em>Parser.c</em>, add to the symbol table, sym[] with the symbol you want, in
+ASCIIbetical order.
+	</li>
+</ul>
+<p>
+See Parser for more information.
+</p>
 <dl>
+	<dt>minimum standard</dt>
+	<dd>POSIX.1</dd>
+	<dt>author</dt>
+	<dd>Neil</dd>
+	<dt>version</dt>
+	<dd>1.1; 2017-03 fixed pedantic warnings; command-line improvements</dd>
+	<dt>since</dt>
+	<dd>0.6; 2008-03-25</dd>
 </dl>
 
 

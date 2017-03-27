@@ -50,7 +50,7 @@ a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
 </p>
 <dl>
 	<dt>minimum standard</dt>
-	<dd>POSIX</dd>
+	<dd>POSIX.1</dd>
 	<dt>author</dt>
 	<dd>Neil</dd>
 	<dt>version</dt>
@@ -72,11 +72,11 @@ See <a href = "#Files">Files</a>.
 </dl>
 </div>
 
-<div><a name = "typedef int (*FilesFilter)(struct Files *const, const char *)"><!-- --></a>
-<h3>typedef int (*FilesFilter)(struct Files *const, const char *)</h3>
-<pre><b>typedef int (*FilesFilter)(struct Files *const, const char *)</b></pre>
+<div><a name = "typedef int (*FilesFilter)(struct Files *const files, const char *file)"><!-- --></a>
+<h3>typedef int (*FilesFilter)(struct Files *const files, const char *file)</h3>
+<pre><b>typedef int (*FilesFilter)(struct Files *const files, const char *file)</b></pre>
 <p>
-Returns a boolean value.
+Returns a boolean value on whether <em>files</em> should include <em>file</em>.
 </p>
 <dl>
 </dl>
@@ -197,7 +197,7 @@ Resets the list of favourites.
 <pre>const char * <b>FilesEnumPath</b> (struct Files *const files)</pre>
 <dl>
 	<dt>return</dt>
-	<dd>After FilesSetFarourite, this enumerates them.</dd>
+	<dd>After <a href = "#FilesSetPath">FilesSetPath</a>, this enumerates them.</dd>
 </dl>
 </div>
 
@@ -215,7 +215,7 @@ Resets the list of favourites.
 <pre>int <b>FilesSize</b> (const struct Files *files)</pre>
 <dl>
 	<dt>return</dt>
-	<dd>File size of the selected file.</dd>
+	<dd>File size of the selected file in KB.</dd>
 </dl>
 </div>
 

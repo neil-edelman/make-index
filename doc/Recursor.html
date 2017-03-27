@@ -25,13 +25,13 @@
 		padding:          4px;
 	}
 </style>
-<title>Parser</title>
+<title>Recursor</title>
 </head>
 
 
 <body>
 
-<h1>Parser</h1>
+<h1>Recursor</h1>
 
 <ul>
 	<li><a href = "#_declarations">Declarations</a></li>
@@ -44,12 +44,12 @@ Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
 GNU General Public License, see copying.txt
 </p>
 <p>
-<em>MakeIndex</em> is a simple content management system that generates static
-content, (mostly index.html,) on all the directories rooted at the directory
-specified by the argument. It is based on a template file, ".index.html" and
-".newsfeed.rss". Also included are files to summarise the directory structure
-for a <em>xml</em> site map, compatible with Google, and any <em>.news</em> for an <em>rss</em>
-feed. It takes one argument, &lt;directory&gt;, which is the root of the recursion.
+<em>Recusor</em> is the main part of <em>MakeIndex</em>, a content management system that
+generates static content, (mostly index.html,) on all the directories rooted
+at the directory specified by the argument. It is based on a template file,
+".index.html" and ".newsfeed.rss". Also included are files to summarise the
+directory structure for a <em>xml</em> site map, compatible with Google, and any
+<em>.news</em> for an <em>rss</em> feed.
 </p>
 <p>
 There should be an &lt;example&gt; directory that has a bunch of files in it. Run
@@ -102,7 +102,7 @@ If this is not the case, the constants are in <em>Files.c</em>.
 </p>
 <dl>
 	<dt>minimum standard</dt>
-	<dd>POSIX</dd>
+	<dd>POSIX.1</dd>
 	<dt>author</dt>
 	<dd>Neil</dd>
 	<dt>version</dt>
@@ -117,7 +117,7 @@ If this is not the case, the constants are in <em>Files.c</em>.
 	<dt>fixme</dt>
 	<dd>Have a subset of LaTeX converted into html for the .d files?</dd>
 	<dt>fixme</dt>
-	<dd>Encoding is an issue; especially the newsfeed, 7bit.</dd>
+	<dd>Encoding is an issue; especially the newsfeed, which requires 7-bit.</dd>
 	<dt>fixme</dt>
 	<dd>It's not robust; eg @(files)<em>@(files){Don't do this.}</em>.</dd>
 </dl>
@@ -146,15 +146,13 @@ See <a href = "#Recursor">Recursor</a>.
 	<td>const char *idx, const char *map, const char *news</td>
 </tr>
 <tr>
-	<td>int</td>
-	<td><a href = "#RecursorGo">RecursorGo</a></td>
+	<td>void</td>
+	<td><a href = "#Recursor_">Recursor_</a></td>
 	<td>void</td>
 </tr>
 <tr>
-	<td>}
-
-static void</td>
-	<td><a href = "#usage">usage</a></td>
+	<td>int</td>
+	<td><a href = "#RecursorGo">RecursorGo</a></td>
 	<td>void</td>
 </tr>
 </table>
@@ -175,23 +173,21 @@ static void</td>
 </dl>
 </div>
 
-<div><a name = "RecursorGo"><!-- --></a>
-<h3>RecursorGo</h3>
-<pre>int <b>RecursorGo</b> (void)</pre>
+<div><a name = "Recursor_"><!-- --></a>
+<h3>Recursor_</h3>
+<pre>void <b>Recursor_</b> (void)</pre>
 <p>
-Actually does the recursion.
+Destructor.
 </p>
 <dl>
 </dl>
 </div>
 
-<div><a name = "usage"><!-- --></a>
-<h3>usage</h3>
-<pre>}
-
-static void <b>usage</b> (void)</pre>
+<div><a name = "RecursorGo"><!-- --></a>
+<h3>RecursorGo</h3>
+<pre>int <b>RecursorGo</b> (void)</pre>
 <p>
-you must free() the memory!
+Actually does the recursion.
 </p>
 <dl>
 </dl>

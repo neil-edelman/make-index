@@ -1,16 +1,18 @@
-/* Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
+/** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
  GNU General Public License, see copying.txt
 
- Widgets like @files @pwd. To create a widget:
+ Widgets like @(files), @(pwd). To create a widget:
 
  * stick the code below implementing {ParserWidget};
  * create a prototype in Widget.h;
  * in {Parser.c}, add to the symbol table, sym[] with the symbol you want, in
    ASCIIbetical order.
 
+ See Parser for more information.
+
  @title		Widget
  @author	Neil
- @std		C89/90
+ @std		POSIX.1
  @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
  @since		0.6; 2008-03-25 */
 
@@ -46,7 +48,6 @@ const char *dot_desc            = ".d"; /* used in multiple files */
 const char *dot_news            = ".news";
 extern const char *dir_current;
 extern const char *dir_parent;
-extern const char *html_index;
 
 /* global, ick: news */
 static int year          = 1983;

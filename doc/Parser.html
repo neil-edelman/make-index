@@ -25,13 +25,13 @@
 		padding:          4px;
 	}
 </style>
-<title></title>
+<title>Parser</title>
 </head>
 
 
 <body>
 
-<h1></h1>
+<h1>Parser</h1>
 
 <ul>
 	<li><a href = "#_declarations">Declarations</a></li>
@@ -39,7 +39,95 @@
 	<li><a href = "#_detail">Function Detail</a></li>
 </ul>
 
+<p>
+Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
+GNU General Public License, see copying.txt
+</p>
+<p>
+Parsing of strings. '~' on a line by itself is recognised in ".newsfile.rss"
+and ".sitemap.xml" as a &lt;head&gt;~&lt;body&gt;~&lt;tail&gt;; there should be two of them.
+</p>
+<p>
+Parsed in ".index.html",
+</p>
+<ul>
+	<li>
+@(content) prints <em>content.d</em>, or, if it is missing, <em>index.d</em>;
+	</li>
+	<li>
+@(files){} repeats for all the files in the directory the contents of the
+argument;
+	</li>
+	<li>
+@(htmlcontent);
+	</li>
+	<li>
+@(pwd){} prints the directory, the argument is the separator;
+eg, @(pwd){/};
+	</li>
+	<li>
+@(root){}, like @(pwd), except up instead of down;
+	</li>
+	<li>
+@(now) prints the date and the time in UTC.
+	</li>
+</ul>
+<p>
+Further parsed in @(files)<em></em> in ".index.html",
+</p>
+<ul>
+	<li>
+@(filealt) prints Dir or File;
+	</li>
+	<li>
+@(filedesc);
+	</li>
+	<li>
+@(filehref) prints the filename or the <em>.link</em>;
+	</li>
+	<li>
+@(fileicon) prints it's <em>.d.jpeg</em>, or if it is not there, <em>dir.jpeg</em> or
+<em>file.jpeg</em>;
+	</li>
+	<li>
+@(filename) prints the file name;
+	</li>
+	<li>
+@(filesize) prints the file size, if it exits;
+	</li>
+	<li>
+@(now) prints the date and the time in UTC.
+	</li>
+</ul>
+<p>
+Parsed in ".newsfeed.rss",
+</p>
+<ul>
+	<li>
+@(date) prints the date on the news file;
+	</li>
+	<li>
+@(news) prints the contents of the file (as a text file);
+	</li>
+	<li>
+@(newsname) prints the filename of the news story;
+	</li>
+	<li>
+@(now) prints the date and the time in UTC;
+	</li>
+	<li>
+@(title) prints the second line in the <em>.news</em>.
+	</li>
+</ul>
 <dl>
+	<dt>minimum standard</dt>
+	<dd>C89/90</dd>
+	<dt>author</dt>
+	<dd>Neil</dd>
+	<dt>version</dt>
+	<dd>1.1; 2017-03 fixed pedantic warnings; command-line improvements</dd>
+	<dt>since</dt>
+	<dd>0.6; 2008-03-21</dd>
 </dl>
 
 
@@ -59,7 +147,7 @@ See <a href = "#Parser">Parser</a>.
 <h3>struct Files</h3>
 <pre><b>struct Files</b></pre>
 <p>
-Dependancy on <em>Files</em>
+Dependancy on <em>Files</em>.
 </p>
 <dl>
 </dl>
@@ -69,7 +157,7 @@ Dependancy on <em>Files</em>
 <h3>typedef int (*ParserWidget)(struct Files *const files, FILE *const fp)</h3>
 <pre><b>typedef int (*ParserWidget)(struct Files *const files, FILE *const fp)</b></pre>
 <p>
-All <em>ParserWidget</em>s are in <em>Widget.c</em>
+All <em>ParserWidget</em>s are in <em>Widget.c</em>.
 </p>
 <dl>
 </dl>

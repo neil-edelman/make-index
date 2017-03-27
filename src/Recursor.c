@@ -1,12 +1,12 @@
 /** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
  GNU General Public License, see copying.txt
 
- {MakeIndex} is a simple content management system that generates static
- content, (mostly index.html,) on all the directories rooted at the directory
- specified by the argument. It is based on a template file, ".index.html" and
- ".newsfeed.rss". Also included are files to summarise the directory structure
- for a {xml} site map, compatible with Google, and any {.news} for an {rss}
- feed. It takes one argument, <directory>, which is the root of the recursion.
+ {Recusor} is the main part of {MakeIndex}, a content management system that
+ generates static content, (mostly index.html,) on all the directories rooted
+ at the directory specified by the argument. It is based on a template file,
+ ".index.html" and ".newsfeed.rss". Also included are files to summarise the
+ directory structure for a {xml} site map, compatible with Google, and any
+ {.news} for an {rss} feed.
 
  There should be an <example> directory that has a bunch of files in it. Run
  {bin/MakeIndex example/}; it should make a webpage out of the directory
@@ -35,9 +35,9 @@
  and '/' is the directory separator; works for UNIX, MacOS, Windows.
  If this is not the case, the constants are in {Files.c}.
 
- @title		Parser
+ @title		Recursor
  @author	Neil
- @std		POSIX
+ @std		POSIX.1
  @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
  @since		1.0; 2016-09-19 Added umask
 			0.8; 2013-07 case-insensitive sort
@@ -45,7 +45,7 @@
 			0.6; 2008-03-27
  @fixme		Don't have <directory> be an argument; just do it in the current.
  @fixme		Have a subset of LaTeX converted into html for the .d files?
- @fixme		Encoding is an issue; especially the newsfeed, 7bit.
+ @fixme		Encoding is an issue; especially the newsfeed, which requires 7-bit.
  @fixme		It's not robust; eg @(files){@(files){Don't do this.}}. */
 
 #include <stdlib.h>		/* malloc free fgets */
@@ -66,7 +66,7 @@ static const int version_minor     = 1;
 
 static const size_t granularity      = 1024;
 static const int max_read            = 0x1000;
-const        char *html_index        = "index.html"; /* in multiple files */
+static const char *html_index        = "index.html";
 static const char *xml_sitemap       = "sitemap.xml";
 static const char *rss_newsfeed      = "newsfeed.rss";
 static const char *template_index    = ".index.html";
@@ -161,6 +161,7 @@ struct Recursor *Recursor(const char *idx, const char *map, const char *news) {
 	return r;
 }
 
+/** Destructor. */
 void Recursor_(void) {
 	if(!r) return;
 	if(r->sitemapParser  && r->sitemap)  {
@@ -286,17 +287,27 @@ static char *readFile(const char *filename) {
 	fprintf(stderr, "Opened '%s' and alloted %lu bytes to read %lu "
 		"characters.\n", filename, bufSize, bufPos);
 	if(fclose(fp)) perror(filename);
-	return buf; /** you must free() the memory! */
+	return buf; /* you must free() the memory! */
 }
 
 static void usage(void) {
-	fprintf(stderr, "Usage: %s [--directory|-d] <directory> | [--help|-h]\n\n"
+	fprintf(stderr, "Usage: %s [--directory|-d] <directory> | [\n"
+		"\t  [--input-index   |-ti] <.index.html>\n"
+		"\t| [--input-newsfeed|-tn] <.newsfeed.rss>\n"
+		"\t| [--input-sitemap |-ts] <.sitemap.xml>\n"
+		"\t| [--output-index   |-i] <index.html>\n"
+		"\t| [--output-newsfeed|-n] <newsfeed.rss>\n"
+		"\t| [--output-sitemap |-s] <sitemap.xml>\n"
+		"] | [--help|-h]\n\n", programme);
+	fprintf(stderr, "All the defaults are listed, except --directory, which "
+		"requires a value.\n"
+		"Input are in <directory>.\n\n"
 		"Version %d.%d.\n\n"
 		"MakeIndex is a content management system that generates static\n"
 		"content, (mostly index.html,) on all the directories rooted at the\n"
 		"<directory> based on <%s>.\n\n"
 		"It also does some other stuff. See readme.txt or\n"
-		"http://neil.chaosnet.org/ for further info.\n\n", programme,
+		"http://neil.chaosnet.org/ for further info.\n\n",
 		version_major, version_minor, template_index);
 	fprintf(stderr, "MakeIndex Copyright 2008, 2012 Neil Edelman\n"
 		"This program comes with ABSOLUTELY NO WARRANTY.\n"
@@ -317,18 +328,54 @@ int main(int argc, char **argv) {
 			is_help = -1;
 		} else if(!strcmp("--directory", av) || !strcmp("-d", av)) {
 			if(directory) {
-				break;
+				is_invalid = -1; break;
 			} else if(++ac < argc) {
 				directory = argv[ac];
 			} else {
 				is_invalid = -1; break;
 			}
-		}
+		} else if(!strcmp("--input-index", av) || !strcmp("-ii", av)) {
+			if(++ac < argc) {
+				template_index = argv[ac];
+			} else {
+				is_invalid = -1; break;
+			}
+		} else if(!strcmp("--input-newsfeed", av) || !strcmp("-in", av)) {
+			if(++ac < argc) {
+				template_newsfeed = argv[ac];
+			} else {
+				is_invalid = -1; break;
+			}
+		} else if(!strcmp("--input-sitemap", av) || !strcmp("-is", av)) {
+			if(++ac < argc) {
+				template_sitemap = argv[ac];
+			} else {
+				is_invalid = -1; break;
+			}
+		} else if(!strcmp("--output-index", av) || !strcmp("-oi", av)) {
+			if(++ac < argc) {
+				html_index = argv[ac];
+			} else {
+				is_invalid = -1; break;
+			}
+		} else if(!strcmp("--output-newsfeed", av) || !strcmp("-on", av)) {
+			if(++ac < argc) {
+				rss_newsfeed = argv[ac];
+			} else {
+				is_invalid = -1; break;
+			}
+		} else if(!strcmp("--output-sitemap", av) || !strcmp("-os", av)) {
+			if(++ac < argc) {
+				xml_sitemap = argv[ac];
+			} else {
+				is_invalid = -1; break;
+			}
+		}		
 	}
 
 	if(is_help || !directory) {
 		usage();
-		return is_help ? EXIT_SUCCESS : EXIT_FAILURE;
+		return is_help && !is_invalid ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
 
 	fprintf(stderr, "Changing directory to <%s>.\n", directory);

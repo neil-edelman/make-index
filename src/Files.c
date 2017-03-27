@@ -7,7 +7,7 @@
 
  @title		Files
  @author	Neil
- @std		POSIX
+ @std		POSIX.1
  @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
  @since		0.6; 2008-03-24 */
 
@@ -81,8 +81,9 @@ struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 		if(!de->d_name || (filter && !filter(files, de->d_name))) continue;
 		/* get status of the file */
 		if(stat(de->d_name, &st)) { perror(de->d_name); continue; }
-		/* get the File(name, size) */
-		file = File(de->d_name, ((int)st.st_size + 512) >> 10, S_ISDIR(st.st_mode));
+		/* get the File(name, size) (in KB) */
+		file = File(de->d_name,
+			((int)st.st_size + 512) >> 10, S_ISDIR(st.st_mode));
 		if(!file) error = -1;
 		/* put it in the appropreate spot */
 		if(file->isDir) {
@@ -91,7 +92,8 @@ struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 			if(!FileInsert(file, &files->firstFile)) error = -1;
 		}
 		/* error */
-		if(error) fprintf(stderr, "Files: <%s> missed being included on the list.\n", de->d_name);
+		if(error) fprintf(stderr, "Files: <%s> missed being included on the "
+			"list.\n", de->d_name);
 	}
 	if(closedir(dir)) { perror(dir_current); }
 	return files;
@@ -136,7 +138,7 @@ void FilesSetPath(struct Files *f) {
 	for( ; f->parent; f = f->parent) f->parent->favourite = f;
 }
 
-/** @return After FilesSetFarourite, this enumerates them. */
+/** @return After \see{FilesSetPath}, this enumerates them. */
 const char *FilesEnumPath(struct Files *const files) {
 	struct Files *f = files;
 	const char *name;
@@ -154,7 +156,7 @@ const char *FilesName(const struct Files *const files) {
 	return files->this->name;
 }
 
-/** @return File size of the selected file. */
+/** @return File size of the selected file in KB. */
 int FilesSize(const struct Files *files) {
 	if(!files || !files->this) return 0;
 	return files->this->size;
@@ -197,8 +199,11 @@ static void File_(struct File *file) {
 static int FileInsert(struct File *file, struct File **startAddr) {
 	struct File *start;
 	struct File *prev = 0, *ptr = 0;
-	if(!file || !startAddr) { fprintf(stderr, "File::insert: file is null, not included.\n"); return 0; }
-	if(file->next) { fprintf(stderr, "File::insert: <%s> is already in some other list!\n", file->name); return 0; }
+	if(!file || !startAddr)
+		{ fprintf(stderr, "FileInsert: file is null.\n"); return 0; }
+	if(file->next)
+		{ fprintf(stderr, "FileInsert: <%s> is already in some other list.\n",
+		file->name); return 0; }
 	start = (struct File *)*startAddr;
 	/* 'prev' is where to insert; 'ptr' is next node */
 	for(prev = 0, ptr = start; ptr; prev = ptr, ptr = ptr->next) {

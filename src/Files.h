@@ -1,8 +1,8 @@
 /** See \see{Files}. */
 struct Files;
 
-/** Returns a boolean value. */
-typedef int (*FilesFilter)(struct Files *const, const char *);
+/** Returns a boolean value on whether {files} should include {file}. */
+typedef int (*FilesFilter)(struct Files *const files, const char *file);
 
 struct Files *Files(struct Files *const parent, const FilesFilter filter);
 void Files_(struct Files *files);

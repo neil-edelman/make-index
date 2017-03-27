@@ -1,10 +1,10 @@
 /** See \see{Parser}. */
 struct Parser;
 
-/** Dependancy on {Files} */
+/** Dependancy on {Files}. */
 struct Files;
 
-/** All {ParserWidget}s are in {Widget.c} */
+/** All {ParserWidget}s are in {Widget.c}. */
 typedef int (*ParserWidget)(struct Files *const files, FILE *const fp);
 
 struct Parser *Parser(char *const str);

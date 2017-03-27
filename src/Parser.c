@@ -1,4 +1,4 @@
-/* Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
+/** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
  GNU General Public License, see copying.txt
 
  Parsing of strings. '~' on a line by itself is recognised in ".newsfile.rss"
@@ -7,11 +7,12 @@
  Parsed in ".index.html",
 
  * @(content) prints {content.d}, or, if it is missing, {index.d};
- * @(files){} repeats for all the files in the directory the contents of the
+ * @(files)\{} repeats for all the files in the directory the contents of the
    argument;
  * @(htmlcontent);
- * @(pwd){} prints the directory, the argument is the separator; eg, @(pwd){/};
- * @(root){}, like @(pwd), except up instead of down;
+ * @(pwd)\{} prints the directory, the argument is the separator;
+   eg, @(pwd)\{/};
+ * @(root)\{}, like @(pwd), except up instead of down;
  * @(now) prints the date and the time in UTC.
 
  Further parsed in @(files){} in ".index.html",
