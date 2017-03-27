@@ -102,11 +102,11 @@ If this is not the case, the constants are in <em>Files.c</em>.
 </p>
 <dl>
 	<dt>minimum standard</dt>
-	<dd>C89/90</dd>
+	<dd>POSIX</dd>
 	<dt>author</dt>
 	<dd>Neil</dd>
 	<dt>version</dt>
-	<dd>1.1; 2017-03 fixed pedantic warnings; took out arg</dd>
+	<dd>1.1; 2017-03 fixed pedantic warnings; command-line improvements</dd>
 	<dt>since</dt>
 	<dd>1.0; 2016-09-19 Added umask
 			0.8; 2013-07 case-insensitive sort
@@ -125,26 +125,71 @@ If this is not the case, the constants are in <em>Files.c</em>.
 
 <a name = "_declarations"><!-- --></a><h2>Declarations</h2>
 
+<div><a name = "struct Recursor"><!-- --></a>
+<h3>struct Recursor</h3>
+<pre><b>struct Recursor</b></pre>
+<p>
+See <a href = "#Recursor">Recursor</a>.
+</p>
+<dl>
+</dl>
+</div>
+
 
 <a name = "_summary"><!-- --></a><h2>Function Summary</h2>
 
 <table>
 <tr><th>Return Type</th><th>Function Name</th><th>Argument List</th></tr>
 <tr>
+	<td>struct Recursor *</td>
+	<td><a href = "#Recursor">Recursor</a></td>
+	<td>const char *idx, const char *map, const char *news</td>
+</tr>
+<tr>
+	<td>int</td>
+	<td><a href = "#RecursorGo">RecursorGo</a></td>
+	<td>void</td>
+</tr>
+<tr>
 	<td>}
-void</td>
+
+static void</td>
 	<td><a href = "#usage">usage</a></td>
-	<td>const char *programme</td>
+	<td>void</td>
 </tr>
 </table>
 
 
 <a name = "_detail"><!-- --></a><h2>Function Detail</h2>
 
+<div><a name = "Recursor"><!-- --></a>
+<h3>Recursor</h3>
+<pre>struct Recursor * <b>Recursor</b> (const char *idx, const char *map, const char *news)</pre>
+<dl>
+	<dt>parameter: idx</dt>
+	<dd>file name of the prototype index file, eg, ".index.html".</dd>
+	<dt>parameter: map</dt>
+	<dd>file name of the prototype map file, eg, ".sitmap.xml".</dd>
+	<dt>parameter: news</dt>
+	<dd>file name of the prototype news file, eg, ".newsfeed.rss".</dd>
+</dl>
+</div>
+
+<div><a name = "RecursorGo"><!-- --></a>
+<h3>RecursorGo</h3>
+<pre>int <b>RecursorGo</b> (void)</pre>
+<p>
+Actually does the recursion.
+</p>
+<dl>
+</dl>
+</div>
+
 <div><a name = "usage"><!-- --></a>
 <h3>usage</h3>
 <pre>}
-void <b>usage</b> (const char *programme)</pre>
+
+static void <b>usage</b> (void)</pre>
 <p>
 you must free() the memory!
 </p>

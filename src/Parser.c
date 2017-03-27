@@ -36,7 +36,7 @@
  @title		Parser
  @author	Neil
  @std		C89/90
- @version	1.1; 2017-03 fixed pedantic warnings; took out arg
+ @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
  @since		0.6; 2008-03-21 */
 
 #include <stdio.h>  /* [f]printf FILE */
@@ -58,9 +58,9 @@ struct Parser {
 /* private - this is the list of 'widgets', see Widget.c - add widgets to here
  to make them recognised - ASCIIbetical */
 static const struct Symbol {
-	char *symbol;
+	const char *const symbol;
 	const ParserWidget handler;
-	int onlyInRoot; /* fixme: not used, just trust the users? haha */
+	const int onlyInRoot; /* fixme: not used, just trust the users? haha */
 } sym[] = {
 	{ "content",  &WidgetContent,  0 },  /* index */
 	{ "date",     &WidgetDate,     0 },  /* news */
@@ -85,10 +85,10 @@ static const struct Symbol {
 static const struct Symbol *match(const char *str, const char *end);
 
 /** @return Creates a parser for the string, {str}. */
-struct Parser *Parser(const char *str) {
+struct Parser *Parser(char *const str) {
 	struct Parser *p;
 	if(!(p = malloc(sizeof *p))) return 0;
-	p->str       = (char *)str;
+	p->str       = str;
 	p->pos       = p->str;
 	p->rew       = p->str;
 	p->recursion = 0;
@@ -116,7 +116,7 @@ void ParserRewind(struct Parser *p) {
  @param fp: Output.
  @fixme This fn needs rewriting; messy.
  @fixme Invisible, hack. */
-int ParserParse(struct Parser *p, const struct Files *f, int invisible,
+int ParserParse(struct Parser *p, struct Files *const f, int invisible,
 	FILE *fp) {
 	char *mark;
 	if(!p || !fp || !p->pos) return 0;

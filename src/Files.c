@@ -7,8 +7,8 @@
 
  @title		Files
  @author	Neil
- @std		C89/90
- @version	1.1; 2017-03 fixed pedantic warnings; took out arg
+ @std		POSIX
+ @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
  @since		0.6; 2008-03-24 */
 
 #include <stdlib.h>   /* malloc free */
@@ -19,9 +19,9 @@
 #include "Files.h"
 
 /* constants */
-const char          *dirCurrent = "."; /* used in multiple files */
-const char          *dirParent  = "..";
-static const size_t maxFilename = 128;
+const char          *dir_current = "."; /* used in multiple files */
+const char          *dir_parent  = "..";
+static const size_t max_filename = 128;
 
 /* public */
 struct Files {
@@ -45,19 +45,23 @@ static struct File *File(const char *name, const int size, const int isDir);
 static void File_(struct File *file);
 static int FileInsert(struct File *file, struct File **startAddr);
 
-/** parent->this must be the 'file' (directory) that you want to create */
-struct Files *Files(const struct Files *parent, const FilesFilter filter) {
-	char          *dirName;
+/** Directory information.
+ @param parent: {parent->this} must be the 'file' (directory) that you want to
+ create.
+ @param filter: This returns true on the files that you want included. */
+struct Files *Files(struct Files *const parent, const FilesFilter filter) {
+	const char    *dirName;
 	struct dirent *de;
 	struct stat   st;
 	struct File   *file;
 	struct Files  *files;
 	DIR           *dir;
-	if(parent && !parent->this) { fprintf(stderr, "Files: tried creating a directory without selecting a file (parent->this.)\n"); return 0; }
+	if(parent && !parent->this) { fprintf(stderr, "Files: tried creating a "
+		"directory without selecting a file (parent->this.)\n"); return 0; }
 	files = malloc(sizeof(struct Files));
 	if(!files) { perror("files"); Files_(files); return 0; }
 	/* does not check for recusive dirs - assumes that it is a tree */
-	files->parent    = (struct Files *)parent;
+	files->parent    = parent;
 	files->favourite = 0;
 	files->file      = parent ? parent->this : 0;
 	files->firstFile = 0;
@@ -69,8 +73,8 @@ struct Files *Files(const struct Files *parent, const FilesFilter filter) {
 	while((dirName = FilesEnumPath(files))) fprintf(stderr, "%s/", dirName);
 	fprintf(stderr, ">.\n");
 	/* read the current dir */
-	dir = opendir(dirCurrent);
-	if(!dir) { perror(dirParent); Files_(files); return 0; }
+	dir = opendir(dir_current);
+	if(!dir) { perror(dir_parent); Files_(files); return 0; }
 	while((de = readdir(dir))) {
 		int error = 0;
 		/* ignore certain files, incomplete 'files'! -> Recusor.c */
@@ -89,9 +93,10 @@ struct Files *Files(const struct Files *parent, const FilesFilter filter) {
 		/* error */
 		if(error) fprintf(stderr, "Files: <%s> missed being included on the list.\n", de->d_name);
 	}
-	if(closedir(dir)) { perror(dirCurrent); }
+	if(closedir(dir)) { perror(dir_current); }
 	return files;
 }
+
 /** Destructor. */
 void Files_(struct Files *files) {
 	if(!files) return;
@@ -99,9 +104,7 @@ void Files_(struct Files *files) {
 	File_(files->firstFile);
 	free(files);
 }
-/* this is how we used to access files before 'invisiblity'
-			if((f->this)) return f->this->next ? -1 : f->firstFile ? -1 : 0;
-			if((f->this)) return f->this->next ? -1 : 0; */
+
 /** This is how we access the files sequentially. */
 int FilesAdvance(struct Files *f) {
 	static enum { files, dirs } type = dirs;
@@ -120,19 +123,23 @@ int FilesAdvance(struct Files *f) {
 	}
 	return 0;
 }
+
 /** Doesn't have a parent? */
 int FilesIsRoot(const struct Files *f) {
 	if(!f) return 0;
 	return (f->parent) ? 0 : -1;
 }
+
 /** Resets the list of favourites. */
 void FilesSetPath(struct Files *f) {
 	if(!f) return;
 	for( ; f->parent; f = f->parent) f->parent->favourite = f;
 }
-/** After FilesSetFarourite, this enumerates them. */
-char *FilesEnumPath(struct Files *f) {
-	char *name;
+
+/** @return After FilesSetFarourite, this enumerates them. */
+const char *FilesEnumPath(struct Files *const files) {
+	struct Files *f = files;
+	const char *name;
 	if(!f) return 0;
 	for( ; f->parent && f->parent->favourite; f = f->parent);
 	if(!f->favourite) return 0; /* clear favourite, done */
@@ -142,28 +149,32 @@ char *FilesEnumPath(struct Files *f) {
 }
 
 /** @return The file name of the selected file. */
-char *FilesName(const struct Files *files) {
+const char *FilesName(const struct Files *const files) {
 	if(!files || !files->this) return 0;
 	return files->this->name;
 }
+
 /** @return File size of the selected file. */
 int FilesSize(const struct Files *files) {
 	if(!files || !files->this) return 0;
 	return files->this->size;
 }
+
 /** @return Whether the file is a directory. */
 int FilesIsDir(const struct Files *files) {
 	if(!files || !files->this) return 0;
 	return files->this->isDir;
 }
 
-/* this is just a list of filenames, (not public) "class File" */
+/* private */
 
 static struct File *File(const char *name, const int size, const int isDir) {
 	size_t len;
 	struct File *file;
-	if(!name || !*name) { fprintf(stderr, "File: file has no name.\n"); return 0; }
-	if((len = strlen(name)) > maxFilename) { fprintf(stderr, "File: file name \"%s\" is too long (%lu.)\n", name, maxFilename); return 0; }
+	if(!name || !*name) { fprintf(stderr, "File: file has no name.\n");
+		return 0; }
+	if((len = strlen(name)) > max_filename) { fprintf(stderr, "File: file name"
+		" \"%s\" is too long (%lu.)\n", name, max_filename); return 0; }
 	file = malloc(sizeof(struct File) + (len + 1));
 	if(!file) { File_(file); return 0; }
 	file->next  = 0;
@@ -171,18 +182,18 @@ static struct File *File(const char *name, const int size, const int isDir) {
 	strncpy(file->name, name, len + 1);
 	file->size  = size;
 	file->isDir = isDir;
-	/* fprintf(stderr, " File(\"%s\" %p)\n", file->name, (void *)file); debug . . . caught bug! */
 	return file;
 }
+
 static void File_(struct File *file) {
 	struct File *next;
 	/* delete ALL the list of files (not just the one) */
 	for( ; file; file = next) {
 		next = file->next;
-		/* fprintf(stderr, " File~(\"%s\" %p)...", file->name, (void *)file); fflush(stderr); debug */
 		free(file);
 	}
 }
+
 static int FileInsert(struct File *file, struct File **startAddr) {
 	struct File *start;
 	struct File *prev = 0, *ptr = 0;
@@ -191,8 +202,7 @@ static int FileInsert(struct File *file, struct File **startAddr) {
 	start = (struct File *)*startAddr;
 	/* 'prev' is where to insert; 'ptr' is next node */
 	for(prev = 0, ptr = start; ptr; prev = ptr, ptr = ptr->next) {
-		/* ansi doesn't have stricmp; strcasecmp not working?
-		 #define _XOPEN_SOURCE_EXTENDED? or just use strcmp */
+		/* 4.4BSD, POSIX.1-2001 :[ */
 		if(strcasecmp(file->name, ptr->name) <= 0) break;
 	}
 	file->next = ptr;

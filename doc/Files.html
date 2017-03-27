@@ -50,11 +50,11 @@ a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
 </p>
 <dl>
 	<dt>minimum standard</dt>
-	<dd>C89/90</dd>
+	<dd>POSIX</dd>
 	<dt>author</dt>
 	<dd>Neil</dd>
 	<dt>version</dt>
-	<dd>1.1; 2017-03 fixed pedantic warnings; took out arg</dd>
+	<dd>1.1; 2017-03 fixed pedantic warnings; command-line improvements</dd>
 	<dt>since</dt>
 	<dd>0.6; 2008-03-24</dd>
 </dl>
@@ -72,9 +72,9 @@ See <a href = "#Files">Files</a>.
 </dl>
 </div>
 
-<div><a name = "typedef int (*FilesFilter)(const struct Files *, const char *)"><!-- --></a>
-<h3>typedef int (*FilesFilter)(const struct Files *, const char *)</h3>
-<pre><b>typedef int (*FilesFilter)(const struct Files *, const char *)</b></pre>
+<div><a name = "typedef int (*FilesFilter)(struct Files *const, const char *)"><!-- --></a>
+<h3>typedef int (*FilesFilter)(struct Files *const, const char *)</h3>
+<pre><b>typedef int (*FilesFilter)(struct Files *const, const char *)</b></pre>
 <p>
 Returns a boolean value.
 </p>
@@ -90,7 +90,7 @@ Returns a boolean value.
 <tr>
 	<td>struct Files *</td>
 	<td><a href = "#Files">Files</a></td>
-	<td>const struct Files *parent, const FilesFilter filter</td>
+	<td>struct Files *const parent, const FilesFilter filter</td>
 </tr>
 <tr>
 	<td>void</td>
@@ -113,14 +113,14 @@ Returns a boolean value.
 	<td>struct Files *f</td>
 </tr>
 <tr>
-	<td>char *</td>
+	<td>const char *</td>
 	<td><a href = "#FilesEnumPath">FilesEnumPath</a></td>
-	<td>struct Files *f</td>
+	<td>struct Files *const files</td>
 </tr>
 <tr>
-	<td>char *</td>
+	<td>const char *</td>
 	<td><a href = "#FilesName">FilesName</a></td>
-	<td>const struct Files *files</td>
+	<td>const struct Files *const files</td>
 </tr>
 <tr>
 	<td>int</td>
@@ -139,11 +139,16 @@ Returns a boolean value.
 
 <div><a name = "Files"><!-- --></a>
 <h3>Files</h3>
-<pre>struct Files * <b>Files</b> (const struct Files *parent, const FilesFilter filter)</pre>
+<pre>struct Files * <b>Files</b> (struct Files *const parent, const FilesFilter filter)</pre>
 <p>
-parent-&gt;this must be the 'file' (directory) that you want to create
+Directory information.
 </p>
 <dl>
+	<dt>parameter: parent</dt>
+	<dd><em>parent-&gt;this</em> must be the 'file' (directory) that you want to
+ create.</dd>
+	<dt>parameter: filter</dt>
+	<dd>This returns true on the files that you want included.</dd>
 </dl>
 </div>
 
@@ -189,17 +194,16 @@ Resets the list of favourites.
 
 <div><a name = "FilesEnumPath"><!-- --></a>
 <h3>FilesEnumPath</h3>
-<pre>char * <b>FilesEnumPath</b> (struct Files *f)</pre>
-<p>
-After FilesSetFarourite, this enumerates them.
-</p>
+<pre>const char * <b>FilesEnumPath</b> (struct Files *const files)</pre>
 <dl>
+	<dt>return</dt>
+	<dd>After FilesSetFarourite, this enumerates them.</dd>
 </dl>
 </div>
 
 <div><a name = "FilesName"><!-- --></a>
 <h3>FilesName</h3>
-<pre>char * <b>FilesName</b> (const struct Files *files)</pre>
+<pre>const char * <b>FilesName</b> (const struct Files *const files)</pre>
 <dl>
 	<dt>return</dt>
 	<dd>The file name of the selected file.</dd>

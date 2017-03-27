@@ -11,7 +11,7 @@
  @title		Widget
  @author	Neil
  @std		C89/90
- @version	1.1; 2017-03 fixed pedantic warnings; took out arg
+ @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
  @since		0.6; 2008-03-25 */
 
 #include <string.h> /* strncat strncpy */
@@ -36,17 +36,17 @@
 /* ugly --> */
 
 /* constants */
-static const char *htmlDesc    = "index.d";
-static const char *htmlContent = "content.d";
-static const char *separator   = "/";
-static const char *picture     = ".jpeg"; /* yeah, I hard coded this */
-static const size_t maxRead    = 512;
-static const char *dot_link    = ".link";
-const char *dot_desc           = ".d"; /* used in multiple files */
-const char *dot_news           = ".news";
-extern const char *dirCurrent;
-extern const char *dirParent;
-extern const char *htmlIndex;
+static const char *html_desc    = "index.d";
+static const char *html_content = "content.d";
+static const char *separator    = "/";
+static const char *picture      = ".jpeg"; /* yeah, I hard coded this */
+static const size_t max_read    = 512;
+static const char *dot_link     = ".link";
+const char *dot_desc            = ".d"; /* used in multiple files */
+const char *dot_news            = ".news";
+extern const char *dir_current;
+extern const char *dir_parent;
+extern const char *html_index;
 
 /* global, ick: news */
 static int year          = 1983;
@@ -92,7 +92,7 @@ int WidgetSetNews(const char *fn) {
 /* the widget handlers */
 
 /** @implements ParserWidget */
-int WidgetContent(const struct Files *f, FILE *fp) {
+int WidgetContent(struct Files *const f, FILE *const fp) {
 	char buf[81], *bufpos;
 	size_t i;
 	FILE *in;
@@ -103,37 +103,38 @@ int WidgetContent(const struct Files *f, FILE *fp) {
 	 but we have to not translate already encoded html; the only solution that
 	 a could see is have a new langauge (like-LaTeX) that gracefully handles
 	 plain-text */
-	if((in = fopen(htmlContent, "r")) || (in = fopen(htmlDesc, "r"))) {
-		for(i = 0; (i < maxRead)
+	if((in = fopen(html_content, "r")) || (in = fopen(html_desc, "r"))) {
+		for(i = 0; (i < max_read)
 			&& (bufpos = fgets(buf, (int)sizeof(buf), in)); i++) {
 			fprintf(fp, "%s", bufpos);
 		}
-		if(fclose(in)) perror(htmlDesc);
+		if(fclose(in)) perror(html_desc);
 	}
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetDate(const struct Files *f, FILE *fp) {
+int WidgetDate(struct Files *const f, FILE *const fp) {
 	UNUSED(f);
 	/* ISO 8601 - YYYY-MM-DD */
 	fprintf(fp, "%4.4d-%2.2d-%2.2d", year, month, day);
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetFilealt(const struct Files *f, FILE *fp) {
+int WidgetFilealt(struct Files *const f, FILE *const fp) {
 	fprintf(fp, "%s", FilesIsDir(f) ? "Dir" : "File");
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetFiledesc(const struct Files *f, FILE *fp) {
-	char buf[256], *name;
+int WidgetFiledesc(struct Files *const f, FILE *const fp) {
+	char buf[256];
+	const char *name;
 	FILE *in;
 	if(!(name = FilesName(f))) return 0;
 	if(FilesIsDir(f)) {
 		/* <file>/index.d */
 		strncpy(buf, name, sizeof(buf) - 9);
 		strncat(buf, separator, 1lu);
-		strncat(buf, htmlDesc, 7lu);
+		strncat(buf, html_desc, 7lu);
 	} else {
 		/* <file>.d */
 		strncpy(buf, name, sizeof(buf) - 6);
@@ -142,7 +143,7 @@ int WidgetFiledesc(const struct Files *f, FILE *fp) {
 	if((in = fopen(buf, "r"))) {
 		char *bufpos;
 		size_t i;
-		for(i = 0; (i < maxRead)
+		for(i = 0; (i < max_read)
 			&& (bufpos = fgets(buf, (int)sizeof(buf), in)); i++) {
 			fprintf(fp, "%s", bufpos);
 		}
@@ -151,8 +152,8 @@ int WidgetFiledesc(const struct Files *f, FILE *fp) {
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetFilehref(const struct Files *f, FILE *fp) {
-	char *str, *name;
+int WidgetFilehref(struct Files *const f, FILE *const fp) {
+	const char *str, *name;
 	int ch;
 	FILE *fhref;
 	if(!(name = FilesName(f))) return 0;
@@ -171,8 +172,9 @@ int WidgetFilehref(const struct Files *f, FILE *fp) {
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetFileicon(const struct Files *f, FILE *fp) {
-	char buf[256], *name;
+int WidgetFileicon(struct Files *const f, FILE *const fp) {
+	char buf[256];
+	const char *name;
 	FILE *in;
 	if(!(name = FilesName(f))) return 0;
 	/* insert <file>.d.jpeg if available */
@@ -188,29 +190,29 @@ int WidgetFileicon(const struct Files *f, FILE *fp) {
 		 as having a @root{/} */
 		FilesSetPath((struct Files *)f);
 		while(FilesEnumPath((struct Files *)f)) {
-			fprintf(fp, "%s%s", dirParent, separator);
+			fprintf(fp, "%s%s", dir_parent, separator);
 		}
 		fprintf(fp, "%s%s", FilesIsDir(f) ? "dir" : "file", picture);
 	}
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetFilename(const struct Files *f, FILE *fp) {
+int WidgetFilename(struct Files *const f, FILE *const fp) {
 	fprintf(fp, "%s", FilesName(f));
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetFiles(const struct Files *f, FILE *fp) {
+int WidgetFiles(struct Files *const f, FILE *const fp) {
 	while(0 && fp);
 	return FilesAdvance((struct Files *)f) ? -1 : 0;
 }
 /** @implements ParserWidget */
-int WidgetFilesize(const struct Files *f, FILE *fp) { /* eww */
+int WidgetFilesize(struct Files *const f, FILE *const fp) { /* eww */
 	if(!FilesIsDir(f)) fprintf(fp, " (%d KB)", FilesSize(f));
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetNews(const struct Files *f, FILE *fp) {
+int WidgetNews(struct Files *const f, FILE *const fp) {
 	char buf[256], *bufpos;
 	size_t i;
 	FILE *in;
@@ -218,20 +220,21 @@ int WidgetNews(const struct Files *f, FILE *fp) {
 	UNUSED(f);
 	if(!filenews[0]) return 0;
 	if(!(in = fopen(filenews, "r"))) { perror(filenews); return 0; }
-	for(i = 0; (i < maxRead)&&(bufpos = fgets(buf, (int)sizeof(buf), in)); i++){
+	for(i = 0; (i < max_read) && (bufpos = fgets(buf, (int)sizeof(buf), in));
+		i++){
 		fprintf(fp, "%s", bufpos);
 	}
 	if(fclose(in)) perror(filenews);
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetNewsname(const struct Files *f, FILE *fp) {
+int WidgetNewsname(struct Files *const f, FILE *const fp) {
 	UNUSED(f);
 	fprintf(fp, "%s", filenews);
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetNow(const struct Files *f, FILE *fp) {
+int WidgetNow(struct Files *const f, FILE *const fp) {
 	char      t[22];
 	time_t    currentTime;
 	struct tm *formatedTime;
@@ -245,27 +248,27 @@ int WidgetNow(const struct Files *f, FILE *fp) {
 	return 0;
 }
 /** @implements ParserWidget */
-int WidgetPwd(const struct Files *f, FILE *fp) {
+int WidgetPwd(struct Files *const f, FILE *const fp) {
 	static int persistant = 0; /* ick, be very careful! */
-	char       *pwd;
+	const char *pwd;
 	if(!persistant) { persistant = -1; FilesSetPath((struct Files *)f); }
-	pwd = FilesEnumPath((struct Files *)f);
+	pwd = FilesEnumPath(f);
 	if(!pwd)        { persistant = 0;  return 0; }
 	fprintf(fp, "%s", pwd);
 	return -1;
 }
 /** @implements ParserWidget */
-int WidgetRoot(const struct Files *f, FILE *fp) {
+int WidgetRoot(struct Files *const f, FILE *const fp) {
 	static int persistant = 0; /* ick, be very careful! */
-	char       *pwd;
+	const char *pwd;
 	if(!persistant) { persistant = -1; FilesSetPath((struct Files *)f); }
-	pwd = FilesEnumPath((struct Files *)f);
+	pwd = FilesEnumPath(f);
 	if(!pwd)        { persistant = 0;  return 0; }
-	fprintf(fp, "%s", dirParent);
+	fprintf(fp, "%s", dir_parent);
 	return -1;
 }
 /** @implements ParserWidget */
-int WidgetTitle(const struct Files *f, FILE *fp) {
+int WidgetTitle(struct Files *const f, FILE *const fp) {
 	UNUSED(f);
 	fprintf(fp, "%s", title);
 	return 0;
