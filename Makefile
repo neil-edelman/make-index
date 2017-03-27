@@ -1,8 +1,8 @@
 # Makefile 1.2 (GNU Make 3.81; MacOSX gcc 4.2.1; MacOSX MinGW 4.3.0)
 
 PROJ  := MakeIndex
-VA    := 0
-VB    := 9
+VA    := 1
+VB    := 1
 
 # dirs
 SDIR  := src
