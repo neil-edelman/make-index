@@ -1,15 +1,15 @@
 /** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
  GNU General Public License, see copying.txt
 
- {Recusor} is the main part of {MakeIndex}, a content management system that
+ {Recursor} is the main part of {MakeIndex}, a content management system that
  generates static content, (mostly index.html,) on all the directories rooted
- at the directory specified by the argument. It is based on a template file,
- ".index.html" and ".newsfeed.rss". Also included are files to summarise the
- directory structure for a {xml} site map, compatible with Google, and any
- {.news} for an {rss} feed.
+ at the directory specified by {--directory} or {-d}. It is based on a template
+ file, {.index.html} and {.newsfeed.rss}, which are changeable. Also included
+ are files to summarise the directory structure for a {xml} site map,
+ compatible with Google, and any {.news} for an {rss} feed.
 
  There should be an <example> directory that has a bunch of files in it. Run
- {bin/MakeIndex example/}; it should make a webpage out of the directory
+ {bin/MakeIndex -d example/}; it should make a webpage out of the directory
  structure and {.index.html}, open {example/index.html} after running to see.
 
  * If the {.index.html} file exists in the <directory>, prints <index.html>
@@ -32,21 +32,23 @@
 
  {.index.html}, {.sitemap.xml}, {.newsfeed.rss}, see {Parser} for recognised
  symbols. Assumes '..' is the parent directory, '.' is the current directory,
- and '/' is the directory separator; works for UNIX, MacOS, Windows.
- If this is not the case, the constants are in {Files.c}.
+ and '/' is the directory separator; works for UNIX, MacOS, and Windows. If
+ this is not the case, the constants are in {Files.c}.
 
  @title		Recursor
  @author	Neil
  @std		POSIX.1
- @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
- @since		1.0; 2016-09-19 Added umask
-			0.8; 2013-07 case-insensitive sort
-			0.7; 2012    sth.dsth.d handled properly
-			0.6; 2008-03-27
+ @version	2018-03 Removed version numbers.
+ @since		1.1; 2017-03 Fixed pedantic warnings; command-line improvements.
+			1.0; 2016-09-19 Added umask.
+			0.8; 2013-07 Case-insensitive sort.
+			0.7; 2012    {sth.dsth.d} handled properly.
+			0.6; 2008-03-27 Made something out of an earlier work.
  @fixme		Don't have <directory> be an argument; just do it in the current.
- @fixme		Have a subset of LaTeX converted into html for the .d files?
+ @fixme		Borrow {Cdoc} parser for the {.d} files.
  @fixme		Encoding is an issue; especially the newsfeed, which requires 7-bit.
- @fixme		It's not robust; eg @(files){@(files){Don't do this.}}. */
+ @fixme		It's not robust; eg @(files){@(files){Don't do this.}}.
+ @fixme		Simplify the command line arguments. */
 
 #include <stdlib.h>		/* malloc free fgets */
 #include <stdio.h>		/* fprintf FILE */
@@ -65,7 +67,6 @@ static const int version_major     = 1;
 static const int version_minor     = 1;
 
 static const size_t granularity      = 1024;
-static const int max_read            = 0x1000;
 static const char *html_index        = "index.html";
 static const char *xml_sitemap       = "sitemap.xml";
 static const char *rss_newsfeed      = "newsfeed.rss";
@@ -315,7 +316,7 @@ static void usage(void) {
 			"under certain conditions; see gpl.txt.\n\n");
 }
 
-/* entry-point (shouldn't have a prototype) */
+/* Entry-point (shouldn't have a prototype.) */
 int main(int argc, char **argv) {
 	int ac, ret;
 	int is_help = 0, is_invalid = 0;
@@ -375,7 +376,7 @@ int main(int argc, char **argv) {
 
 	if(is_help || !directory) {
 		usage();
-		return is_help && !is_invalid ? EXIT_SUCCESS : EXIT_FAILURE;
+		return is_help || !is_invalid ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
 
 	fprintf(stderr, "Changing directory to <%s>.\n", directory);
