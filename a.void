@@ -1,0 +1,26 @@
+type Foo {};
+
+/* Sprite is an image with a normal map. */
+type Sprite { key name, picture image, picture normal };
+
+type ShipClass { key name, Sprite sprite, int mass /* Mg ie T */,
+	int shield /* F */, recharge /* mS (ie 1/k\Omega) */,
+	int speed /* m/s (ie pixel/s) */, float acceleration /* m/s^2 */,
+	int turn /* \deg/s */, WmdType weapon };
+
+type FarObject { key name, Sprite sprite, text desciption, vec2i x };
+
+type Gate { string name, SpaceZone to, ortho3i x };
+type Debris { string name, Sprite sprite, int mass };
+
+type Alignment { string name, Alignment likes[:], Alignment hates[:] };
+
+type Specimen { string name, Alignment align, ShipClass ships[1:] };
+
+type SpaceZone { string name, Alignment align, Gate gates[1:],
+	FarObject fars[:] };
+
+type WmdType { key name, Sprite sprite, int ms_range, int speed,
+	int ms_recharge, float damage, float impact_mass, vec3i colour };
+
+type Wierd { key a, key b, auto c };
