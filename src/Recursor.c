@@ -5,38 +5,12 @@
  @author Neil
 
  `Recursor` is the main part of `make-index`, a content management system that
- generates static content, (mostly `index.html`,) on all the directories rooted
- at the directory specified by `--directory` or `-d`. It is based on a template
- file, `.index.html` and `.newsfeed.rss`, which are changeable. Also included
- are files to summarize the directory structure for a `xml` site map,
- compatible with Google, and any `.news` for an `rss` feed.
+ generates static content on all the directories based on templates rooted at
+ the working directory.
 
  There should be an `example` directory that has a bunch of files in it. Run
- `bin/make-index -d example/`; it should make a webpage out of the directory
- structure and `.index.html`, open `example/index.html` after running to see.
-
- \* If the `.index.html` file exists in the `<directory>`, prints `index.html`
-    recursively; overwrites any `index.html` on all the directories rooted at
-    `<directory>`;
- \* if the `.sitemap.xml` file exists in `<directory>`, prints (and overwrites)
-    an index called `sitemap.xml`;
- \* if the `.newsfeed.rss` file exists in `<directory>`, prints (and overwrites)
-    to `newsfeed.rss` all the `.news` files (if there are any.)
-
- \* Treats `.d` as a description of the file without the `.d`;
-    if this is an empty text-file or a zero-byte file, it skips over this file.
- \* treats `index.d` as a description of the directory;
- \* treats `content.d` as an in-depth description of the directory,
-    replacing `index.d` when in the directory, when it exists;
- \* treats `.d.jpg` as a image that will go with the description;
- \* treats `.news` as a newsworthy item; the format of this file is ISO 8601
-    date (YYYY-MM-DD,) next line title;
- \* treats `.link` as a link with the href in the file.
-
- `.index.html`, `.sitemap.xml`, `.newsfeed.rss`, see `Parser` for recognised
- symbols. Assumes `..` is the parent directory, `.` is the current directory,
- and `/` is the directory separator; works for UNIX, MacOS, and Windows. If
- this is not the case, the constants are in `Files.c`.
+ `../bin/make-index` in the example directory; it should make a webpage out of
+ the directory structure and the templates.
 
  @std POSIX.1
  @fixme Don't have <directory> be an argument; just do it in the current.
@@ -89,7 +63,16 @@ static void usage(void) {
 		"If you have these files accessible in the current directory, then,\n"
 		"<%s>\tcreates <%s> in all accessible subdirectories,\n"
 		"<%s>\tcreates <%s> from all the .news encountered,\n"
-		"<%s>\tcreates <%s> of all accessible subdirectories.\n\n",
+		"<%s>\tcreates <%s> of all accessible subdirectories.\n\n"
+		"Of special signifigance:\n"
+		" <file>.d is a description of <file>;\n"
+		"  if this description is an empty, it skips over this file;\n"
+		" index.d is a description of the directory;\n"
+		" content.d is an in-depth description of the directory;\n"
+		" <file>.d.jpg is an (icon) image that will go with the description;\n"
+		" <news>.news as a newsworthy item; the format of this file is\n"
+		"  ISO 8601 date (YYYY-MM-DD,) next line title;\n"
+		" <link>.link as a link with the href in the file.\n",
 		programme,
 		template_index, html_index,
 		template_newsfeed, rss_newsfeed,
