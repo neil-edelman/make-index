@@ -1,4 +1,4 @@
-# Recursor\.c #
+# MakeIndex\.c #
 
 ## make\-index ##
 
