@@ -13,11 +13,9 @@
  the directory structure and the templates.
 
  @std POSIX.1
- @fixme Don't have <directory> be an argument; just do it in the current.
  @fixme Borrow `Cdoc` parser for the `.d` files. (`lex` is pretty good.)
  @fixme Encoding is an issue; especially the newsfeed, which requires 7-bit.
- @fixme It's not robust; eg @(files){@(files){Don't do this.}}.
- @fixme Simplify the command line arguments. */
+ @fixme It's not robust; eg @(files){@(files){Don't do this.}}. */
 
 #include <stdlib.h>		/* malloc free fgets */
 #include <stdio.h>		/* fprintf FILE */
