@@ -15,23 +15,23 @@
  `bin/make-index -d example/`; it should make a webpage out of the directory
  structure and `.index.html`, open `example/index.html` after running to see.
 
- * If the `.index.html` file exists in the `<directory>`, prints `index.html`
-   recursively; overwrites any `index.html` on all the directories rooted at
-   `<directory>`;
- * if the `.sitemap.xml` file exists in `<directory>`, prints (and overwrites)
-   an index called `sitemap.xml`;
- * if the `.newsfeed.rss` file exists in `<directory>`, prints (and overwrites)
-   to `newsfeed.rss` all the `.news` files (if there are any.)
+ \* If the `.index.html` file exists in the `<directory>`, prints `index.html`
+    recursively; overwrites any `index.html` on all the directories rooted at
+    `<directory>`;
+ \* if the `.sitemap.xml` file exists in `<directory>`, prints (and overwrites)
+    an index called `sitemap.xml`;
+ \* if the `.newsfeed.rss` file exists in `<directory>`, prints (and overwrites)
+    to `newsfeed.rss` all the `.news` files (if there are any.)
 
- * Treats `.d` as a description of the file without the `.d`;
-   if this is an empty text-file or a zero-byte file, it skips over this file.
- * treats `index.d` as a description of the directory;
- * treats `content.d` as an in-depth description of the directory,
-   replacing `index.d` when in the directory, when it exists;
- * treats `.d.jpg` as a image that will go with the description;
- * treats `.news` as a newsworthy item; the format of this file is ISO 8601
-   date (YYYY-MM-DD,) next line title;
- * treats `.link` as a link with the href in the file.
+ \* Treats `.d` as a description of the file without the `.d`;
+    if this is an empty text-file or a zero-byte file, it skips over this file.
+ \* treats `index.d` as a description of the directory;
+ \* treats `content.d` as an in-depth description of the directory,
+    replacing `index.d` when in the directory, when it exists;
+ \* treats `.d.jpg` as a image that will go with the description;
+ \* treats `.news` as a newsworthy item; the format of this file is ISO 8601
+    date (YYYY-MM-DD,) next line title;
+ \* treats `.link` as a link with the href in the file.
 
  `.index.html`, `.sitemap.xml`, `.newsfeed.rss`, see `Parser` for recognised
  symbols. Assumes `..` is the parent directory, `.` is the current directory,
@@ -51,16 +51,13 @@
 #include <unistd.h>		/* chdir (POSIX, not ANSI) */
 #include <sys/types.h>	/* mode_t (umask) */
 #include <sys/stat.h>	/* umask */
+#include <errno.h>		/* EDOM */
+#include <assert.h>
 #include "Files.h"
 #include "Widget.h"
 #include "Parser.h"
-#include "Recursor.h"
 
 /* constants */
-static const char *const programme = "MakeIndex";
-static const int version_major     = 1;
-static const int version_minor     = 1;
-
 static const size_t granularity      = 1024;
 static const char *html_index        = "index.html";
 static const char *xml_sitemap       = "sitemap.xml";
@@ -74,128 +71,146 @@ extern const char *dir_parent;
 /* in Widget.c */
 extern const char *dot_news;
 
-/* public */
-/** Exported to the rest of the project _via_ a pointer. */
-struct Recursor;
-struct Recursor {
-	char          *indexString;
-	struct Parser *indexParser;    /* depends on indexString */
-	FILE          *sitemap;
-	char          *sitemapString;
-	struct Parser *sitemapParser;  /* depends on sitemapString */
-	FILE          *newsfeed;
-	char          *newsfeedString;
-	struct Parser *newsfeedParser; /* depends on newsfeedString */
-};
-
-/* private */
-static int filter(struct Files *const files, const char *fn);
-static int recurse(struct Files *const parent);
-static char *readFile(const char *filename);
-static void usage(void);
+static const char *why;
 
 /* Singleton. */
-static struct Recursor *r = 0;
+static struct recursor {
+	struct { char *string; struct Parser *parser; } index;
+	struct { char *string; struct Parser *parser; FILE *fp; } sitemap, newsfeed;
+} *r;
 
-/* public */
+/* private */
 
-/** Constructor.
- @param[idx] File name of the prototype index file, eg, ".index.html".
- @param[map] File name of the prototype map file, eg, ".sitmap.xml".
- @param[news] File name of the prototype news file, eg, ".newsfeed.rss". */
-struct Recursor *Recursor(const char *idx, const char *map, const char *news) {
-	if(!idx || !idx || !map || !news) return 0;
-	if(r) { fprintf(stderr, "Recursor: there is already a Recursor.\n");
-		return 0; }
-	r = malloc(sizeof(struct Recursor));
-	if(!r) { perror("recursor"); Recursor_(); return 0; }
-	r->indexString    = 0;
-	r->indexParser    = 0;
-	r->sitemap        = 0;
-	r->sitemapString  = 0;
-	r->sitemapParser  = 0;
-	r->newsfeed       = 0;
-	r->newsfeedString = 0;
-	r->newsfeedParser = 0;
-	/* open the files for writing (index is opened multiple times in the directories) */
-	if(!(r->sitemap  = fopen(xml_sitemap,  "w"))) perror(xml_sitemap);
-	if(!(r->newsfeed = fopen(rss_newsfeed, "w"))) perror(rss_newsfeed);
-	/* read from the input files */
-	if(                !(r->indexString   = readFile(idx))) {
-		fprintf(stderr, "Recursor: to make an index, create the file <%s>.\n",
-			idx);
+static void usage(void) {
+	static const char *programme = "make-index";
+	fprintf(stderr,
+		"%s is a content management system that generates static\n"
+		"content on all the directories rooted at the current directory.\n\n"
+		"If you have these files accessible in the current directory, then,\n"
+		"<%s>\tcreates <%s> in all accessible subdirectories,\n"
+		"<%s>\tcreates <%s> from all the .news encountered,\n"
+		"<%s>\tcreates <%s> of all accessible subdirectories.\n\n",
+		programme,
+		template_index, html_index,
+		template_newsfeed, rss_newsfeed,
+		template_sitemap, xml_sitemap);
+	fprintf(stderr,
+		"2000, 2012 Neil Edelman, distributed under the terms of the\n"
+		"GNU General Public License 3.\n\n");
+}
+
+/** This is not that great for error handling.
+ @return Reads the entire `filename` and sticks it into a dynamically
+ allocated string. One must `free` the memory. */
+static char *readFile(const char *filename) {
+	char *buf = 0, *newBuf;
+	size_t bufPos = 0, bufSize = 0, rd;
+	FILE *fp;
+	if(!filename) return 0;
+	if(!(fp = fopen(filename, "r"))) { perror(filename); return 0; }
+	for( ; ; ) {
+		newBuf = realloc(buf, (bufSize += granularity) * sizeof(char));
+		if(!newBuf) { perror(filename); free(buf); return 0; }
+		buf     = newBuf;
+		rd      = fread(buf + bufPos, sizeof(char), granularity, fp);
+		bufPos += rd;
+		if(rd < granularity) { buf[bufPos] = '\0'; break; }
 	}
-	if(r->sitemap  && !(r->sitemapString  = readFile(map))) {
-		fprintf(stderr, "Recursor: to make an sitemap, create the file <%s>.\n",
-			map);
-	}
-	if(r->newsfeed && !(r->newsfeedString = readFile(news))) {
-		fprintf(stderr, "Recursor: to make a newsfeed, create the file <%s>.\n",
-			news);
-	}
-	/* create Parsers attached to them */
-	if(r->indexString    && !(r->indexParser    = Parser(r->indexString))) {
-		fprintf(stderr, "Recursor: error generating Parser from <%s>.\n", idx);
-	}
-	if(r->sitemapString  && !(r->sitemapParser  = Parser(r->sitemapString))) {
-		fprintf(stderr, "Recursor: error generating Parser from <%s>.\n", map);
-	}
-	if(r->newsfeedString && !(r->newsfeedParser = Parser(r->newsfeedString))) {
-		fprintf(stderr, "Recursor: error generating Parser from <%s>.\n", news);
-	}
-	/* if theirs no content, we have nothing to do */
-	if(!r->indexParser && !r->sitemapParser && !r->newsfeedParser) {
-		fprintf(stderr, "Recursor: no Parsers defined, it would be useless to "
-			"continue.\n");
-		Recursor_();
-		return 0;
-	}
-	/* parse the "header," ie, everything up to ~, the second arg is null
-	 because we haven't set up the Files, so @files{}, @pwd{}, etc are
-	 undefined */
-	ParserParse(r->sitemapParser,  0, 0, r->sitemap);
-	ParserParse(r->newsfeedParser, 0, 0, r->newsfeed);
-	return r;
+	fprintf(stderr, "Opened '%s' and alloted %lu bytes to read %lu bytes.\n",
+		filename, bufSize, bufPos);
+	if(fclose(fp)) perror(filename);
+	return buf;
 }
 
 /** Destructor. */
-void Recursor_(void) {
+static void recursor_(void) {
 	if(!r) return;
-	if(r->sitemapParser  && r->sitemap)  {
-		ParserParse(r->sitemapParser,  0, -1, r->sitemap);
-		ParserParse(r->sitemapParser,  0, 0,  r->sitemap);
+	if(r->sitemap.parser && r->sitemap.fp)  {
+		ParserParse(r->sitemap.parser,  0, -1, r->sitemap.fp);
+		ParserParse(r->sitemap.parser,  0, 0,  r->sitemap.fp);
 	}
-	if(r->sitemap  && fclose(r->sitemap))  perror(xml_sitemap);
-	if(r->newsfeedParser && r->newsfeed) {
-		ParserParse(r->newsfeedParser, 0, -1, r->newsfeed);
-		ParserParse(r->newsfeedParser, 0, 0,  r->newsfeed);
+	if(r->sitemap.fp && fclose(r->sitemap.fp)) perror(xml_sitemap);
+	if(r->newsfeed.parser && r->newsfeed.fp) {
+		ParserParse(r->newsfeed.parser, 0, -1, r->newsfeed.fp);
+		ParserParse(r->newsfeed.parser, 0, 0,  r->newsfeed.fp);
 	}
-	if(r->newsfeed && fclose(r->newsfeed)) perror(rss_newsfeed);
-	Parser_(&r->indexParser);
-	free(r->indexString);
-	Parser_(&r->sitemapParser);
-	free(r->sitemapString);
-	Parser_(&r->newsfeedParser);
-	free(r->newsfeedString);	
+	if(r->newsfeed.fp && fclose(r->newsfeed.fp)) perror(rss_newsfeed);
+	Parser_(&r->index.parser);
+	free(r->index.string);
+	Parser_(&r->sitemap.parser);
+	free(r->sitemap.string);
+	Parser_(&r->newsfeed.parser);
+	free(r->newsfeed.string);
 	free(r);
 	r = 0;
 }
 
-/** Actually does the recursion. */
-int RecursorGo(void) {
-	if(!r) return 0;
-	return recurse(0);
-}
+/** Constructor of singleton. */
+static struct recursor *recursor(void) {
+	assert(!r);
+	if(!(r = malloc(sizeof *r))) { why = "recursor"; goto catch; };
+	r->index.string = 0;
+	r->index.parser = 0;
+	r->sitemap.string = 0;
+	r->sitemap.parser = 0;
+	r->sitemap.fp = 0;
+	r->newsfeed.string = 0;
+	r->newsfeed.parser = 0;
+	r->newsfeed.fp = 0;
+	/* read index template -- index is opened multiple times */
+	if(!(r->index.string = readFile(template_index))) {
+		fprintf(stderr, "Recursor: to make an index, create the file <%s>.\n",
+			template_index);
+	} else {
+		if(!(r->index.parser = Parser(r->index.string)))
+			{ why = template_index; goto catch; }
+	}
 
-/* private */
+	/* read sitemap template */
+	if(!(r->sitemap.string = readFile(template_sitemap))) {
+		fprintf(stderr, "Recursor: to make an sitemap, create the file <%s>.\n",
+			template_sitemap);
+	} else {
+		if(!(r->sitemap.fp = fopen(xml_sitemap,  "w")))
+			{ why = xml_sitemap; goto catch; }
+		if(!(r->sitemap.parser = Parser(r->sitemap.string)))
+			{ why = template_sitemap; goto catch; }
+	}
+
+	/* read newsfeed template */
+	if(!(r->newsfeed.string = readFile(template_newsfeed))) {
+		fprintf(stderr, "Recursor: to make a newsfeed, create the file <%s>.\n",
+			template_newsfeed);
+	} else {
+		if(!(r->newsfeed.fp = fopen(rss_newsfeed, "w")))
+			{ why = rss_newsfeed; goto catch; }
+		if(!(r->newsfeed.parser = Parser(r->newsfeed.string))) {
+			{ why = template_newsfeed; goto catch; }
+		}
+	}
+
+	/* if there's no content, we have nothing to do */
+	if(!r->index.parser && !r->sitemap.parser && !r->newsfeed.parser)
+		{ why = "no parsers"; errno = EDOM; goto catch; }
+
+	/* parse the "header," ie, everything up to ~, the second arg is null
+	 because we haven't set up the Files, so @files{}, @pwd{}, etc are
+	 undefined */
+	ParserParse(r->sitemap.parser,  0, 0, r->sitemap.fp);
+	ParserParse(r->newsfeed.parser, 0, 0, r->newsfeed.fp);
+	goto finally;
+catch:
+	recursor_();
+finally:
+	return r;
+}
 
 /** @implements FilesFilter */
 static int filter(struct Files *const files, const char *fn) {
 	const char *str;
 	char filed[64];
 	FILE *fd;
-	if(!r) { fprintf(stderr, "Recusor::filter: recursor not initialised.\n");
-		return 0; }
+	assert(r);
 	/* *.d[.0]* */
 	for(str = fn; (str = strstr(str, dot_desc)); ) {
 		str += strlen(dot_desc);
@@ -205,8 +220,9 @@ static int filter(struct Files *const files, const char *fn) {
 	if((str = strstr(fn, dot_news))) {
 		str += strlen(dot_news);
 		if(*str == '\0') {
-			if(WidgetSetNews(fn) && ParserParse(r->newsfeedParser, files, 0, r->newsfeed)) {
-				ParserRewind(r->newsfeedParser);
+			if(WidgetSetNews(fn)
+				&& ParserParse(r->newsfeed.parser, files, 0, r->newsfeed.fp)) {
+				ParserRewind(r->newsfeed.parser);
 			} else {
 				fprintf(stderr, "Recursor::filter: error writing news <%s>.\n", fn);
 			}
@@ -245,13 +261,13 @@ static int recurse(struct Files *const parent) {
 	f = Files(parent, &filter);
 	/* write the index */
 	if((fp = fopen(html_index, "w"))) {
-		ParserParse(r->indexParser, f, 0, fp);
-		ParserRewind(r->indexParser);
+		ParserParse(r->index.parser, f, 0, fp);
+		ParserRewind(r->index.parser);
 		fclose(fp);
-	} else perror(html_index);
+	} else perror(html_index); /* fixme: this should be an error */
 	/* sitemap */
-	ParserParse(r->sitemapParser, f, 0, r->sitemap);
-	ParserRewind(r->sitemapParser);
+	ParserParse(r->sitemap.parser, f, 0, r->sitemap.fp);
+	ParserRewind(r->sitemap.parser);
 	/* recurse */
 	while(FilesAdvance(f)) {
 		if(!FilesIsDir(f) ||
@@ -268,127 +284,22 @@ static int recurse(struct Files *const parent) {
 	return -1;
 }
 
-/** @return Reads the entire `filename` and sticks it into a dynamically
- allocated string. */
-static char *readFile(const char *filename) {
-	char *buf = 0, *newBuf;
-	size_t bufPos = 0, bufSize = 0, rd;
-	FILE *fp;
-	if(!filename) return 0;
-	if(!(fp = fopen(filename, "r"))) { perror(filename); return 0; }
-	for( ; ; ) {
-		newBuf = realloc(buf, (bufSize += granularity) * sizeof(char));
-		if(!newBuf) { perror(filename); free(buf); return 0; }
-		buf     = newBuf;
-		rd      = fread(buf + bufPos, sizeof(char), granularity, fp);
-		bufPos += rd;
-		if(rd < granularity) { buf[bufPos] = '\0'; break; }
-	}
-	fprintf(stderr, "Opened '%s' and alloted %lu bytes to read %lu "
-		"characters.\n", filename, bufSize, bufPos);
-	if(fclose(fp)) perror(filename);
-	return buf; /* you must free() the memory! */
-}
-
-static void usage(void) {
-	fprintf(stderr, "Usage: %s [--directory|-d] <directory> | [\n"
-		"\t  [--input-index   |-ti] <.index.html>\n"
-		"\t| [--input-newsfeed|-tn] <.newsfeed.rss>\n"
-		"\t| [--input-sitemap |-ts] <.sitemap.xml>\n"
-		"\t| [--output-index   |-i] <index.html>\n"
-		"\t| [--output-newsfeed|-n] <newsfeed.rss>\n"
-		"\t| [--output-sitemap |-s] <sitemap.xml>\n"
-		"] | [--help|-h]\n\n", programme);
-	fprintf(stderr, "All the defaults are listed, except --directory, which "
-		"requires a value.\n"
-		"Input are in <directory>.\n\n"
-		"Version %d.%d.\n\n"
-		"make-index is a content management system that generates static\n"
-		"content, (mostly index.html,) on all the directories rooted at the\n"
-		"<directory> based on <%s>.\n\n"
-		"It also does some other stuff. See readme.txt or\n"
-		"http://neil.chaosnet.org/ for further info.\n\n",
-		version_major, version_minor, template_index);
-	fprintf(stderr,
-		"2000, 2012 Neil Edelman, distributed under the terms of the"
-		"GNU General Public License 3.\n\n");
-}
-
 /* Entry-point (shouldn't have a prototype.) */
 int main(int argc, char **argv) {
-	int ac, ret;
-	int is_help = 0, is_invalid = 0;
-	const char *directory = 0;
-
-	/* gperf is wonderful, but what about other build systems? */
-	for(ac = 1; ac < argc; ac++) {
-		const char *const av = argv[ac];
-		if(!strcmp("--help", av) || !strcmp("-h", av)) {
-			is_help = -1;
-		} else if(!strcmp("--directory", av) || !strcmp("-d", av)) {
-			if(directory) {
-				is_invalid = -1; break;
-			} else if(++ac < argc) {
-				directory = argv[ac];
-			} else {
-				is_invalid = -1; break;
-			}
-		} else if(!strcmp("--input-index", av) || !strcmp("-ii", av)) {
-			if(++ac < argc) {
-				template_index = argv[ac];
-			} else {
-				is_invalid = -1; break;
-			}
-		} else if(!strcmp("--input-newsfeed", av) || !strcmp("-in", av)) {
-			if(++ac < argc) {
-				template_newsfeed = argv[ac];
-			} else {
-				is_invalid = -1; break;
-			}
-		} else if(!strcmp("--input-sitemap", av) || !strcmp("-is", av)) {
-			if(++ac < argc) {
-				template_sitemap = argv[ac];
-			} else {
-				is_invalid = -1; break;
-			}
-		} else if(!strcmp("--output-index", av) || !strcmp("-oi", av)) {
-			if(++ac < argc) {
-				html_index = argv[ac];
-			} else {
-				is_invalid = -1; break;
-			}
-		} else if(!strcmp("--output-newsfeed", av) || !strcmp("-on", av)) {
-			if(++ac < argc) {
-				rss_newsfeed = argv[ac];
-			} else {
-				is_invalid = -1; break;
-			}
-		} else if(!strcmp("--output-sitemap", av) || !strcmp("-os", av)) {
-			if(++ac < argc) {
-				xml_sitemap = argv[ac];
-			} else {
-				is_invalid = -1; break;
-			}
-		}		
-	}
-
-	if(is_help || !directory) {
-		usage();
-		return is_help || !is_invalid ? EXIT_SUCCESS : EXIT_FAILURE;
-	}
-
-	fprintf(stderr, "Changing directory to <%s>.\n", directory);
-	if(chdir(directory)) { perror(directory); return EXIT_FAILURE; }
-
-	/* make sure that umask is set so that others can read what we create
-	 "warning: passing argument 1 of 'umask' with different width due to
-	 prototype" <- umask's fault; can't change? */
-	umask(S_IWGRP | S_IWOTH);
-	
-	/* recursing; fixme: this should be configurable */
-	if(!Recursor(template_index, template_sitemap, template_newsfeed))
-		return EXIT_FAILURE;
-	ret = RecursorGo();
-	Recursor_();
-	return ret ? EXIT_SUCCESS : EXIT_FAILURE;
+	int ret = EXIT_FAILURE;
+	(void)argv;
+	if(argc != 1) { why = "arguments"; errno = EDOM; goto catch; }
+	/* make sure that umask is set so that others can read what we create */
+	umask((mode_t)(S_IWGRP | S_IWOTH));
+	/* recursing */
+	if(!recursor() || !recurse(0)) goto catch;
+	ret = EXIT_SUCCESS;
+	goto finally;
+catch:
+	perror(why);
+	fputc('\n', stdout);
+	usage();
+finally:
+	recursor_();
+	return ret;
 }

@@ -56,7 +56,7 @@ struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 	DIR           *dir;
 	if(parent && !parent->this) { fprintf(stderr, "Files: tried creating a "
 		"directory without selecting a file (parent->this.)\n"); return 0; }
-	files = malloc(sizeof(struct Files));
+	files = malloc(sizeof *files);
 	if(!files) { perror("files"); Files_(files); return 0; }
 	/* does not check for recusive dirs - assumes that it is a tree */
 	files->parent    = parent;
@@ -76,7 +76,7 @@ struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 	while((de = readdir(dir))) {
 		int error = 0;
 		/* ignore certain files, incomplete 'files'! -> Recusor.c */
-		if(!de->d_name || (filter && !filter(files, de->d_name))) continue;
+		if(!*de->d_name || (filter && !filter(files, de->d_name))) continue;
 		/* get status of the file */
 		if(stat(de->d_name, &st)) { perror(de->d_name); continue; }
 		/* get the File(name, size) (in KB) */

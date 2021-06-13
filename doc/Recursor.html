@@ -3,7 +3,8 @@
 <html>
 
 <head>
-<!-- steal these colour values from JavaDocs; meh -->
+<meta http-equiv = "Content-Type" content = "text/html;charset=UTF-8">
+<!-- Steal these colour values from JavaDocs. -->
 <style type = "text/css">
 	a:link,  a:visited { color: #4a6782; }
 	a:hover, a:focus   { color: #bb7a2a; }
@@ -25,177 +26,64 @@
 		padding:          4px;
 	}
 </style>
-<title>Recursor</title>
+<title>Recursor.c</title>
 </head>
-
 
 <body>
 
-<h1>Recursor</h1>
+<h1>Recursor.c</h1>
+
+<h2>make-index</h2>
 
 <ul>
-	<li><a href = "#_declarations">Declarations</a></li>
-	<li><a href = "#_summary">Function Summary</a></li>
-	<li><a href = "#_detail">Function Detail</a></li>
+	<li><a href = "#preamble:">Description</a></li>
+	<li><a href = "#license:">License</a></li>
 </ul>
 
-<p>
-Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
-GNU General Public License, see copying.txt
-</p>
-<p>
-<em>Recursor</em> is the main part of <em>MakeIndex</em>, a content management system that
-generates static content, (mostly index.html,) on all the directories rooted
-at the directory specified by <em>--directory</em> or <em>-d</em>. It is based on a template
-file, <em>.index.html</em> and <em>.newsfeed.rss</em>, which are changeable. Also included
-are files to summarise the directory structure for a <em>xml</em> site map,
-compatible with Google, and any <em>.news</em> for an <em>rss</em> feed.
-</p>
-<p>
-There should be an &lt;example&gt; directory that has a bunch of files in it. Run
-<em>bin/MakeIndex -d example/</em>; it should make a webpage out of the directory
-structure and <em>.index.html</em>, open <em>example/index.html</em> after running to see.
-</p>
+<div>
+
+<h2><a id = "preamble:" name = "preamble:">Description</a></h2>
+
+<p><code>Recursor</code> is the main part of <code>make-index</code>, a content management system that generates static content, (mostly <code>index.html</code>,) on all the directories rooted at the directory specified by <code>--directory</code> or <code>-d</code>. It is based on a template file, <code>.index.html</code> and <code>.newsfeed.rss</code>, which are changeable. Also included are files to summarize the directory structure for a <code>xml</code> site map, compatible with Google, and any <code>.news</code> for an <code>rss</code> feed.</p>
+
+<p>There should be an <code>example</code> directory that has a bunch of files in it. Run <code>bin/make-index -d example/</code>; it should make a webpage out of the directory structure and <code>.index.html</code>, open <code>example/index.html</code> after running to see.</p>
+
 <ul>
-	<li>
-If the <em>.index.html</em> file exists in the &lt;directory&gt;, prints &lt;index.html&gt;
-recursively; overwrites any <em>index.html</em> on all the directories rooted at
-&lt;directory&gt;;
-	</li>
-	<li>
-if the <em>.sitemap.xml</em> file exists in &lt;directory&gt;, prints (and overwrites) an
-index called <em>sitemap.xml</em>;
-	</li>
-	<li>
-if the <em>.newsfeed.rss</em> file exists in &lt;directory&gt;, prints (and overwrites)
-to <em>newsfeed.rss</em> all the <em>.news</em> files (if there are any.)
-	</li>
+	<li>If the <code>.index.html</code> file exists in the <code>&lt;directory&gt;</code>, prints <code>index.html</code> recursively; overwrites any <code>index.html</code> on all the directories rooted at <code>&lt;directory&gt;</code>;</li>
+	<li>if the <code>.sitemap.xml</code> file exists in <code>&lt;directory&gt;</code>, prints (and overwrites) an index called <code>sitemap.xml</code>;</li>
+	<li>if the <code>.newsfeed.rss</code> file exists in <code>&lt;directory&gt;</code>, prints (and overwrites) to <code>newsfeed.rss</code> all the <code>.news</code> files (if there are any.)</li>
 </ul>
+
 <ul>
-	<li>
-Treats <em>.d</em> as a description of the file without the <em>.d</em>;
-if this is an empty text-file or a zero-byte file, it skips over this file.
-	</li>
-	<li>
-treats <em>index.d</em> as a description of the directory;
-	</li>
-	<li>
-treats <em>content.d</em> as an in-depth description of the directory,
-replacing &lt;index.d&gt; when in the directory;
-	</li>
-	<li>
-treats <em>.d.jpg</em> as a image that will go with the description;
-	</li>
-	<li>
-treats <em>.news</em> as a newsworthy item; the format of this file is ISO 8601
-date (YYYY-MM-DD,) next line title;
-	</li>
-	<li>
-treats <em>.link</em> as a link with the href in the file.
-	</li>
+	<li>Treats <code>.d</code> as a description of the file without the <code>.d</code>; if this is an empty text-file or a zero-byte file, it skips over this file.</li>
+	<li>treats <code>index.d</code> as a description of the directory;</li>
+	<li>treats <code>content.d</code> as an in-depth description of the directory, replacing <code>index.d</code> when in the directory, when it exists;</li>
+	<li>treats <code>.d.jpg</code> as a image that will go with the description;</li>
+	<li>treats <code>.news</code> as a newsworthy item; the format of this file is ISO 8601 date (YYYY-MM-DD,) next line title;</li>
+	<li>treats <code>.link</code> as a link with the href in the file.</li>
 </ul>
-<p>
-<em>.index.html</em>, <em>.sitemap.xml</em>, <em>.newsfeed.rss</em>, see <em>Parser</em> for recognised
-symbols. Assumes '..' is the parent directory, '.' is the current directory,
-and '/' is the directory separator; works for UNIX, MacOS, and Windows. If
-this is not the case, the constants are in <em>Files.c</em>.
-</p>
+
+<p><code>.index.html</code>, <code>.sitemap.xml</code>, <code>.newsfeed.rss</code>, see <code>Parser</code> for recognised symbols. Assumes <code>..</code> is the parent directory, <code>.</code> is the current directory, and <code>/</code> is the directory separator; works for UNIX, MacOS, and Windows. If this is not the case, the constants are in <code>Files.c</code>.</p>
+
+</div>
+
 <dl>
-	<dt>minimum standard</dt>
-	<dd>POSIX.1</dd>
-	<dt>author</dt>
+	<dt>Author:</dt>
 	<dd>Neil</dd>
-	<dt>version</dt>
-	<dd>2018-03 Removed version numbers.</dd>
-	<dt>since</dt>
-	<dd>1.1; 2017-03 Fixed pedantic warnings; command-line improvements.
-			1.0; 2016-09-19 Added umask.
-			0.8; 2013-07 Case-insensitive sort.
-			0.7; 2012    <em>sth.dsth.d</em> handled properly.
-			0.6; 2008-03-27 Made something out of an earlier work.</dd>
-	<dt>fixme</dt>
-	<dd>Don't have &lt;directory&gt; be an argument; just do it in the current.</dd>
-	<dt>fixme</dt>
-	<dd>Borrow <em>Cdoc</em> parser for the <em>.d</em> files.</dd>
-	<dt>fixme</dt>
-	<dd>Encoding is an issue; especially the newsfeed, which requires 7-bit.</dd>
-	<dt>fixme</dt>
-	<dd>It's not robust; eg @(files)<em>@(files){Don't do this.}</em>.</dd>
-	<dt>fixme</dt>
-	<dd>Simplify the command line arguments.</dd>
+	<dt>Standard:</dt>
+	<dd>POSIX.1</dd>
+	<dt>Caveat:</dt>
+	<dd>Don't have &lt;directory&gt; be an argument; just do it in the current. Borrow <code>Cdoc</code> parser for the <code>.d</code> files. (<code>lex</code> is pretty good.) Encoding is an issue; especially the newsfeed, which requires 7-bit. It's not robust; eg @(files){@(files){Don't do this.}}. Simplify the command line arguments.</dd>
 </dl>
 
+<div>
 
-<a name = "_declarations"><!-- --></a><h2>Declarations</h2>
+<h2><a id = "license:" name = "license:">License</a></h2>
 
-<div><a name = "struct Recursor"><!-- --></a>
-<h3>struct Recursor</h3>
-<pre><b>struct Recursor</b></pre>
-<p>
-See <a href = "#Recursor">Recursor</a>.
-</p>
-<dl>
-</dl>
+<p>2000, 2012 Neil Edelman, distributed under the terms of the <a href = "https://opensource.org/licenses/GPL-3.0">GNU General Public License 3</a>.</p>
+
 </div>
-
-
-<a name = "_summary"><!-- --></a><h2>Function Summary</h2>
-
-<table>
-<tr><th>Return Type</th><th>Function Name</th><th>Argument List</th></tr>
-<tr>
-	<td>struct Recursor *</td>
-	<td><a href = "#Recursor">Recursor</a></td>
-	<td>const char *idx, const char *map, const char *news</td>
-</tr>
-<tr>
-	<td>void</td>
-	<td><a href = "#Recursor_">Recursor_</a></td>
-	<td>void</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#RecursorGo">RecursorGo</a></td>
-	<td>void</td>
-</tr>
-</table>
-
-
-<a name = "_detail"><!-- --></a><h2>Function Detail</h2>
-
-<div><a name = "Recursor"><!-- --></a>
-<h3>Recursor</h3>
-<pre>struct Recursor * <b>Recursor</b> (const char *idx, const char *map, const char *news)</pre>
-<dl>
-	<dt>parameter: idx</dt>
-	<dd>file name of the prototype index file, eg, ".index.html".</dd>
-	<dt>parameter: map</dt>
-	<dd>file name of the prototype map file, eg, ".sitmap.xml".</dd>
-	<dt>parameter: news</dt>
-	<dd>file name of the prototype news file, eg, ".newsfeed.rss".</dd>
-</dl>
-</div>
-
-<div><a name = "Recursor_"><!-- --></a>
-<h3>Recursor_</h3>
-<pre>void <b>Recursor_</b> (void)</pre>
-<p>
-Destructor.
-</p>
-<dl>
-</dl>
-</div>
-
-<div><a name = "RecursorGo"><!-- --></a>
-<h3>RecursorGo</h3>
-<pre>int <b>RecursorGo</b> (void)</pre>
-<p>
-Actually does the recursion.
-</p>
-<dl>
-</dl>
-</div>
-
 
 </body>
+
 </html>

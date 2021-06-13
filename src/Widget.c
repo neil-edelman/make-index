@@ -100,13 +100,14 @@ int WidgetContent(struct Files *const f, FILE *const fp) {
 	size_t i;
 	FILE *in;
 
+	printf("WidgetContent.\n");
 	UNUSED(f);
 	/* it's a nightmare to test if this is text (which most is,) in which case
 	 we should insert <p>...</p> after every paragraph, <>& -> &lt;&gt;&amp;,
 	 but we have to not translate already encoded html; the only solution that
-	 a could see is have a new langauge (like-LaTeX) that gracefully handles
+	 I could see is have a new language (like-LaTeX) that gracefully handles
 	 plain-text */
-	if((in = fopen(html_content, "r")) || (in = fopen(html_desc, "r"))) {
+	if((in = fopen(html_content, "r")) && printf("content\n") || (in = fopen(html_desc, "r")) && printf("desc\n")) {
 		for(i = 0; (i < max_read)
 			&& (bufpos = fgets(buf, (int)sizeof(buf), in)); i++) {
 			fprintf(fp, "%s", bufpos);

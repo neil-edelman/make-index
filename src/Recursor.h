@@ -1,6 +1,5 @@
-/** See \see{Recursor}. */
 struct Recursor;
 
-struct Recursor *Recursor(const char *index, const char *map, const char *news);
+struct Recursor *Recursor(void);
 void Recursor_(void);
 int RecursorGo(void);

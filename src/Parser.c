@@ -84,7 +84,7 @@ static const struct Symbol {
 /* private */
 static const struct Symbol *match(const char *str, const char *end);
 
-/** @return Creates a parser for the string, {str}. */
+/** @return Creates a parser for the string, `str`. */
 struct Parser *Parser(char *const str) {
 	struct Parser *p;
 	if(!(p = malloc(sizeof *p))) return 0;
@@ -112,8 +112,8 @@ void ParserRewind(struct Parser *p) {
 }
 
 /** Parse, called recursively.
- @param[f] Called in the handler to {ParserWidget}s.
- @param[invisible] No output.
+ @param[f] Called in the handler to `ParserWidget`.
+ @param[invisible] Binary -- no output.
  @param[fp] Output.
  @fixme This fn needs rewriting; messy.
  @fixme Invisible, hack. */
@@ -151,9 +151,9 @@ int ParserParse(struct Parser *p, struct Files *const f, int invisible,
 			char                *start = p->pos + 2, *end;
 			if(!invisible) fprintf(fp, "%.*s", (int)(p->pos - mark), mark);
 			if(!(end = strpbrk(start, ")"))) break; /* syntax error */
-			if(!(m = match(start, end))) fprintf(stderr, "Parser::parse: "
-				"symbol not reconised, '%.*s.'\n", (int)(end - start), start);
-			/* if(p->recursion == 1 && m && m->onlyInRoot) return -1; ? */
+			if(!(m = match(start, end))) fprintf(stderr,
+				"Parser::parse: symbol not reconised, '%.*s.'\n",
+				(int)(end - start), start);
 			open = *(end + 1) == '{' ? -1 : 0;
 			do {
 				/* -> widget.c */
@@ -171,7 +171,7 @@ int ParserParse(struct Parser *p, struct Files *const f, int invisible,
 	return 0;
 }
 
-/** binary search */
+/** Binary search of `str` -- `end`. */
 static const struct Symbol *match(const char *str, const char *end) {
 	const int N = sizeof(sym) / sizeof(struct Symbol);
 	int a, lo = 0, mid, hi = N - 1;
