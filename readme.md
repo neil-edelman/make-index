@@ -7,7 +7,7 @@
 
 ## <a id = "user-content-preamble" name = "user-content-preamble">Description</a> ##
 
-`Recursor` is the main part of `make-index`, a content management system that generates static content on all the directories based on templates rooted at the working directory\.
+`MakeIndex` is the main part of `make-index`, a content management system that generates static content on all the directories based on templates rooted at the working directory\.
 
 There should be an `example` directory that has a bunch of files in it\. Run `../bin/make-index` in the example directory; it should make a webpage out of the directory structure and the templates\.
 

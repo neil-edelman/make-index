@@ -4,7 +4,7 @@
  @subtitle make-index
  @author Neil
 
- `Recursor` is the main part of `make-index`, a content management system that
+ `MakeIndex` is the main part of `make-index`, a content management system that
  generates static content on all the directories based on templates rooted at
  the working directory.
 
@@ -71,7 +71,7 @@ static void usage(void) {
 		" <file>.d.jpg is an (icon) image that will go with the description;\n"
 		" <news>.news as a newsworthy item; the format of this file is\n"
 		"  ISO 8601 date (YYYY-MM-DD,) next line title;\n"
-		" <link>.link as a link with the href in the file.\n",
+		" <link>.link as a link with the href in the file.\n\n",
 		programme,
 		template_index, html_index,
 		template_newsfeed, rss_newsfeed,
