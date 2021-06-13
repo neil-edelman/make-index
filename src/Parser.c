@@ -1,44 +1,43 @@
-/** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
- GNU General Public License, see copying.txt
+/** @license 2000, 2012 Neil Edelman, distributed under the terms of the
+ [GNU General Public License 3](https://opensource.org/licenses/GPL-3.0).
 
- Parsing of strings. '~' on a line by itself is recognised in ".newsfile.rss"
- and ".sitemap.xml" as a <head>~<body>~<tail>; there should be two of them.
+ @title Parser
+ @author Neil
+
+ Parsing of strings. '~' on a line by itself is recognized in ".newsfile.rss"
+ and ".sitemap.xml" as a `<head>\~<body>\~<tail>`; there should be two of them.
 
  Parsed in ".index.html",
 
- * @(content) prints {content.d}, or, if it is missing, {index.d};
- * @(files)\{} repeats for all the files in the directory the contents of the
-   argument;
- * @(htmlcontent);
- * @(pwd)\{} prints the directory, the argument is the separator;
-   eg, @(pwd)\{/};
- * @(root)\{}, like @(pwd), except up instead of down;
- * @(now) prints the date and the time in UTC.
+ \* `@(content)` prints `content.d`, or, if it is missing, `index.d`;
+ \* `@(files)\{}` repeats for all the files in the directory the contents of the
+	argument;
+ \* `@(htmlcontent)`;
+ \* `@(pwd)\{}` prints the directory, the argument is the separator;
+    _eg_, `@(pwd)\{/}`;
+ \* `@(root)\{}`, like `@(pwd)`, except up instead of down;
+ \* `@(now)` prints the date and the time in UTC.
 
- Further parsed in @(files){} in ".index.html",
+ Further parsed in `@(files){}` in ".index.html",
 
- * @(filealt) prints Dir or File;
- * @(filedesc);
- * @(filehref) prints the filename or the {.link};
- * @(fileicon) prints it's {.d.jpeg}, or if it is not there, {dir.jpeg} or
-   {file.jpeg};
- * @(filename) prints the file name;
- * @(filesize) prints the file size, if it exits;
- * @(now) prints the date and the time in UTC.
+ \* `@(filealt) prints Dir or File;
+ \* `@(filedesc);
+ \* `@(filehref) prints the filename or the `.link`;
+ \* `@(fileicon) prints it's `.d.jpeg`, or if it is not there, `dir.jpeg` or
+	 `file.jpeg`;
+ \* `@(filename)` prints the file name;
+ \* `@(filesize)` prints the file size, if it exits;
+ \* `@(now)` prints the date and the time in UTC.
 
  Parsed in ".newsfeed.rss",
 
- * @(date) prints the date on the news file;
- * @(news) prints the contents of the file (as a text file);
- * @(newsname) prints the filename of the news story;
- * @(now) prints the date and the time in UTC;
- * @(title) prints the second line in the {.news}.
+ \* `@(date)` prints the date on the news file;
+ \* `@(news)` prints the contents of the file (as a text file);
+ \* `@(newsname)` prints the filename of the news story;
+ \* `@(now)` prints the date and the time in UTC;
+ \* `@(title)` prints the second line in the {.news}.
 
- @title		Parser
- @author	Neil
- @std		C89/90
- @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
- @since		0.6; 2008-03-21 */
+ @std C89/90 */
 
 #include <stdio.h>  /* [f]printf FILE */
 #include <stdlib.h> /* malloc */
@@ -96,25 +95,26 @@ struct Parser *Parser(char *const str) {
 	return p;
 }
 
-/** @param p_ptr: A pointer to the {Parser} that's to be destucted. */
+/** @param[p_ptr] A pointer to the `Parser` that's to be destucted. */
 void Parser_(struct Parser **const p_ptr) {
 	struct Parser *p;
 	if(!p_ptr || !(p = *p_ptr)) return;
-	if(p->recursion) fprintf(stderr, "Parser~: a file was closed with recursion level of %d; syntax error?\n", p->recursion);
+	if(p->recursion) fprintf(stderr, "Parser~: a file was closed with "
+		"recursion level of %d; syntax error?\n", p->recursion);
 	free(p);
 	*p_ptr = 0;
 }
 
-/** Resets the parser, {p}. */
+/** Resets the parser, `p`. */
 void ParserRewind(struct Parser *p) {
 	if(!p) return;
 	p->pos = p->rew;
 }
 
 /** Parse, called recursively.
- @param f: Called in the handler to {ParserWidget}s.
- @param invisible: No output.
- @param fp: Output.
+ @param[f] Called in the handler to {ParserWidget}s.
+ @param[invisible] No output.
+ @param[fp] Output.
  @fixme This fn needs rewriting; messy.
  @fixme Invisible, hack. */
 int ParserParse(struct Parser *p, struct Files *const f, int invisible,

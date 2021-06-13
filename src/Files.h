@@ -1,7 +1,9 @@
-/** See \see{Files}. */
+extern const char *dir_current, *dir_parent;
+
+/** See <fn:Files>. */
 struct Files;
 
-/** Returns a boolean value on whether {files} should include {file}. */
+/** Returns a boolean value on whether `files` should include `file`. */
 typedef int (*FilesFilter)(struct Files *const files, const char *file);
 
 struct Files *Files(struct Files *const parent, const FilesFilter filter);

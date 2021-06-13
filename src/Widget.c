@@ -1,17 +1,18 @@
-/** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
- GNU General Public License, see copying.txt
+/** @license 2000, 2012 Neil Edelman, distributed under the terms of the
+ [GNU General Public License 3](https://opensource.org/licenses/GPL-3.0).
+
+ @subtitle Widget
+ @author Neil
 
  Widgets like @(files), @(pwd). To create a widget:
 
- * stick the code below implementing {ParserWidget};
- * create a prototype in Widget.h;
- * in {Parser.c}, add to the symbol table, sym[] with the symbol you want, in
+ * stick the code below implementing `ParserWidget`;
+ * create a prototype in `Widget.h`;
+ * in `Parser.c`, add to the symbol table, `sym[]` with the symbol you want, in
    ASCIIbetical order.
 
  See Parser for more information.
 
- @title		Widget
- @author	Neil
  @std		POSIX.1
  @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
  @since		0.6; 2008-03-25 */
@@ -50,15 +51,16 @@ extern const char *dir_current;
 extern const char *dir_parent;
 
 /* global, ick: news */
-static int year          = 1983;
-static int month         = 1;
-static int day           = 30;
+static int year          = 1969;
+static int month         = 7;
+static int day           = 20;
 static char title[64]    = "(no title)";
 static char filenews[64] = "(no file name)";
 
 /* private */
 int clip(int no, const int low, const int high);
 
+/** I don't know what this does with `fn`. */
 int WidgetSetNews(const char *fn) {
 	char *dot;
 	int  read;

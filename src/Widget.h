@@ -1,3 +1,5 @@
+extern const char *dot_desc, *dot_news;
+
 struct Recursor;
 struct Files;
 

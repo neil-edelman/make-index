@@ -1,15 +1,13 @@
-/** Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
- GNU General Public License, see copying.txt, or
- \url{ https://opensource.org/licenses/GPL-3.0 }.
+/** @license 2000, 2012 Neil Edelman, distributed under the terms of the
+ [GNU General Public License 3](https://opensource.org/licenses/GPL-3.0).
 
- Files is a list of File (private class defiend below,) the Files can have
- a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
+ @subtitle Files
+ @author Neil
 
- @title		Files
- @author	Neil
- @std		POSIX.1
- @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
- @since		0.6; 2008-03-24 */
+ `Files` is a list of `File`, the `Files` can have
+ a relation to other Files by `parent` and `favourite` (`@(pwd)` uses this.)
+
+ @std POSIX.1 */
 
 #include <stdlib.h>   /* malloc free */
 #include <stdio.h>    /* fprintf */
@@ -46,9 +44,9 @@ static void File_(struct File *file);
 static int FileInsert(struct File *file, struct File **startAddr);
 
 /** Directory information.
- @param parent: {parent->this} must be the 'file' (directory) that you want to
+ @param[parent] `parent->this` must be the 'file' (directory) that you want to
  create.
- @param filter: This returns true on the files that you want included. */
+ @param[filter] This returns true on the files that you want included. */
 struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 	const char    *dirName;
 	struct dirent *de;
@@ -85,7 +83,7 @@ struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 		file = File(de->d_name,
 			((int)st.st_size + 512) >> 10, S_ISDIR(st.st_mode));
 		if(!file) error = -1;
-		/* put it in the appropreate spot */
+		/* put it in the appropriate spot */
 		if(file->isDir) {
 			if(!FileInsert(file, &files->firstDir))  error = -1;
 		} else {

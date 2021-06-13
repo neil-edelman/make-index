@@ -3,7 +3,8 @@
 <html>
 
 <head>
-<!-- steal these colour values from JavaDocs; meh -->
+<meta http-equiv = "Content-Type" content = "text/html;charset=UTF-8">
+<!-- Steal these colour values from JavaDocs. -->
 <style type = "text/css">
 	a:link,  a:visited { color: #4a6782; }
 	a:hover, a:focus   { color: #bb7a2a; }
@@ -25,276 +26,324 @@
 		padding:          4px;
 	}
 </style>
-<title>Widget</title>
+<title>Widget.c</title>
 </head>
-
 
 <body>
 
-<h1>Widget</h1>
+<h1>Widget.c</h1>
+
+<h2>Widget</h2>
 
 <ul>
-	<li><a href = "#_declarations">Declarations</a></li>
-	<li><a href = "#_summary">Function Summary</a></li>
-	<li><a href = "#_detail">Function Detail</a></li>
+	<li><a href = "#preamble:">Description</a></li>
+	<li><a href = "#summary:">Function Summary</a></li>
+	<li><a href = "#fn:">Function Definitions</a></li>
+	<li><a href = "#license:">License</a></li>
 </ul>
 
-<p>
-Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
-GNU General Public License, see copying.txt
-</p>
-<p>
-Widgets like @(files), @(pwd). To create a widget:
-</p>
-<ul>
-	<li>
-stick the code below implementing <em>ParserWidget</em>;
-	</li>
-	<li>
-create a prototype in Widget.h;
-	</li>
-	<li>
-in <em>Parser.c</em>, add to the symbol table, sym[] with the symbol you want, in
-ASCIIbetical order.
-	</li>
-</ul>
-<p>
-See Parser for more information.
-</p>
+<div>
+
+<h2><a id = "preamble:" name = "preamble:">Description</a></h2>
+
+<p>Widgets like @(files), @(pwd). To create a widget:</p>
+
+<p>stick the code below implementing <code>ParserWidget</code>; create a prototype in <code>Widget.h</code>; in <code>Parser.c</code>, add to the symbol table, <code>sym[]</code> with the symbol you want, in ASCIIbetical order.</p>
+
+<p>See Parser for more information.</p>
+
+</div>
+
 <dl>
-	<dt>minimum standard</dt>
-	<dd>POSIX.1</dd>
-	<dt>author</dt>
+	<dt>Author:</dt>
 	<dd>Neil</dd>
-	<dt>version</dt>
-	<dd>1.1; 2017-03 fixed pedantic warnings; command-line improvements</dd>
-	<dt>since</dt>
-	<dd>0.6; 2008-03-25</dd>
+	<dt>Standard:</dt>
+	<dd>POSIX.1 @version 1.1; 2017-03 fixed pedantic warnings; command-line improvements @since 0.6; 2008-03-25</dd>
 </dl>
 
+<div>
 
-<a name = "_declarations"><!-- --></a><h2>Declarations</h2>
-
-
-<a name = "_summary"><!-- --></a><h2>Function Summary</h2>
+<h2><a id = "summary:" name = "summary:">Function Summary</a></h2>
 
 <table>
-<tr><th>Return Type</th><th>Function Name</th><th>Argument List</th></tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetContent">WidgetContent</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetDate">WidgetDate</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetFilealt">WidgetFilealt</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetFiledesc">WidgetFiledesc</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetFilehref">WidgetFilehref</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetFileicon">WidgetFileicon</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetFilename">WidgetFilename</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetFiles">WidgetFiles</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetFilesize">WidgetFilesize</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetNews">WidgetNews</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetNewsname">WidgetNewsname</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetNow">WidgetNow</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetPwd">WidgetPwd</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetRoot">WidgetRoot</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#WidgetTitle">WidgetTitle</a></td>
-	<td>struct Files *const f, FILE *const fp</td>
-</tr>
+
+<tr><th>Modifiers</th><th>Function Name</th><th>Argument List</th></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:clip">clip</a></td><td>no, low, high</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetSetNews">WidgetSetNews</a></td><td>fn</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetContent">WidgetContent</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetDate">WidgetDate</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetFilealt">WidgetFilealt</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetFiledesc">WidgetFiledesc</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetFilehref">WidgetFilehref</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetFileicon">WidgetFileicon</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetFilename">WidgetFilename</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetFiles">WidgetFiles</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetFilesize">WidgetFilesize</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetNews">WidgetNews</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetNewsname">WidgetNewsname</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetNow">WidgetNow</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetPwd">WidgetPwd</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetRoot">WidgetRoot</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:WidgetTitle">WidgetTitle</a></td><td>f, fp</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:clip">clip</a></td><td>no, low, high</td></tr>
+
 </table>
 
-
-<a name = "_detail"><!-- --></a><h2>Function Detail</h2>
-
-<div><a name = "WidgetContent"><!-- --></a>
-<h3>WidgetContent</h3>
-<pre>int <b>WidgetContent</b> (struct Files *const f, FILE *const fp)</pre>
-<dl>
-	<dt>implements</dt>
-	<dd>ParserWidget</dd>
-</dl>
 </div>
 
-<div><a name = "WidgetDate"><!-- --></a>
-<h3>WidgetDate</h3>
-<pre>int <b>WidgetDate</b> (struct Files *const f, FILE *const fp)</pre>
-<dl>
-	<dt>implements</dt>
-	<dd>ParserWidget</dd>
-</dl>
+<div>
+
+<h2><a id = "fn:" name = "fn:">Function Definitions</a></h2>
+
+<div>
+
+<h3><a id = "fn:clip" name = "fn:clip">clip</a></h3>
+
+<p><code>int <strong>clip</strong>(int <em>no</em>, const int <em>low</em>, const int <em>high</em>);</code></p>
+
 </div>
 
-<div><a name = "WidgetFilealt"><!-- --></a>
-<h3>WidgetFilealt</h3>
-<pre>int <b>WidgetFilealt</b> (struct Files *const f, FILE *const fp)</pre>
-<dl>
-	<dt>implements</dt>
-	<dd>ParserWidget</dd>
-</dl>
+<div>
+
+<h3><a id = "fn:WidgetSetNews" name = "fn:WidgetSetNews">WidgetSetNews</a></h3>
+
+<p><code>int <strong>WidgetSetNews</strong>(const char *<em>fn</em>)</code></p>
+
+<p>I don't know what this does with <code>fn</code>.</p>
+
 </div>
 
-<div><a name = "WidgetFiledesc"><!-- --></a>
-<h3>WidgetFiledesc</h3>
-<pre>int <b>WidgetFiledesc</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetContent" name = "fn:WidgetContent">WidgetContent</a></h3>
+
+<p><code>int <strong>WidgetContent</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetFilehref"><!-- --></a>
-<h3>WidgetFilehref</h3>
-<pre>int <b>WidgetFilehref</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetDate" name = "fn:WidgetDate">WidgetDate</a></h3>
+
+<p><code>int <strong>WidgetDate</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetFileicon"><!-- --></a>
-<h3>WidgetFileicon</h3>
-<pre>int <b>WidgetFileicon</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetFilealt" name = "fn:WidgetFilealt">WidgetFilealt</a></h3>
+
+<p><code>int <strong>WidgetFilealt</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetFilename"><!-- --></a>
-<h3>WidgetFilename</h3>
-<pre>int <b>WidgetFilename</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetFiledesc" name = "fn:WidgetFiledesc">WidgetFiledesc</a></h3>
+
+<p><code>int <strong>WidgetFiledesc</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetFiles"><!-- --></a>
-<h3>WidgetFiles</h3>
-<pre>int <b>WidgetFiles</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetFilehref" name = "fn:WidgetFilehref">WidgetFilehref</a></h3>
+
+<p><code>int <strong>WidgetFilehref</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetFilesize"><!-- --></a>
-<h3>WidgetFilesize</h3>
-<pre>int <b>WidgetFilesize</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetFileicon" name = "fn:WidgetFileicon">WidgetFileicon</a></h3>
+
+<p><code>int <strong>WidgetFileicon</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetNews"><!-- --></a>
-<h3>WidgetNews</h3>
-<pre>int <b>WidgetNews</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetFilename" name = "fn:WidgetFilename">WidgetFilename</a></h3>
+
+<p><code>int <strong>WidgetFilename</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetNewsname"><!-- --></a>
-<h3>WidgetNewsname</h3>
-<pre>int <b>WidgetNewsname</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetFiles" name = "fn:WidgetFiles">WidgetFiles</a></h3>
+
+<p><code>int <strong>WidgetFiles</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetNow"><!-- --></a>
-<h3>WidgetNow</h3>
-<pre>int <b>WidgetNow</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetFilesize" name = "fn:WidgetFilesize">WidgetFilesize</a></h3>
+
+<p><code>int <strong>WidgetFilesize</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetPwd"><!-- --></a>
-<h3>WidgetPwd</h3>
-<pre>int <b>WidgetPwd</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetNews" name = "fn:WidgetNews">WidgetNews</a></h3>
+
+<p><code>int <strong>WidgetNews</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetRoot"><!-- --></a>
-<h3>WidgetRoot</h3>
-<pre>int <b>WidgetRoot</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetNewsname" name = "fn:WidgetNewsname">WidgetNewsname</a></h3>
+
+<p><code>int <strong>WidgetNewsname</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
-<div><a name = "WidgetTitle"><!-- --></a>
-<h3>WidgetTitle</h3>
-<pre>int <b>WidgetTitle</b> (struct Files *const f, FILE *const fp)</pre>
+<div>
+
+<h3><a id = "fn:WidgetNow" name = "fn:WidgetNow">WidgetNow</a></h3>
+
+<p><code>int <strong>WidgetNow</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
 <dl>
-	<dt>implements</dt>
+	<dt>Implements:</dt>
 	<dd>ParserWidget</dd>
 </dl>
+
 </div>
 
+<div>
+
+<h3><a id = "fn:WidgetPwd" name = "fn:WidgetPwd">WidgetPwd</a></h3>
+
+<p><code>int <strong>WidgetPwd</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
+<dl>
+	<dt>Implements:</dt>
+	<dd>ParserWidget</dd>
+</dl>
+
+</div>
+
+<div>
+
+<h3><a id = "fn:WidgetRoot" name = "fn:WidgetRoot">WidgetRoot</a></h3>
+
+<p><code>int <strong>WidgetRoot</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
+<dl>
+	<dt>Implements:</dt>
+	<dd>ParserWidget</dd>
+</dl>
+
+</div>
+
+<div>
+
+<h3><a id = "fn:WidgetTitle" name = "fn:WidgetTitle">WidgetTitle</a></h3>
+
+<p><code>int <strong>WidgetTitle</strong>(struct Files *const <em>f</em>, FILE *const <em>fp</em>)</code></p>
+
+<dl>
+	<dt>Implements:</dt>
+	<dd>ParserWidget</dd>
+</dl>
+
+</div>
+
+<div>
+
+<h3><a id = "fn:clip" name = "fn:clip">clip</a></h3>
+
+<p><code>int <strong>clip</strong>(int <em>no</em>, const int <em>low</em>, const int <em>high</em>)</code></p>
+
+</div>
+
+</div>
+
+<div>
+
+<h2><a id = "license:" name = "license:">License</a></h2>
+
+<p>2000, 2012 Neil Edelman, distributed under the terms of the <a href = "https://opensource.org/licenses/GPL-3.0">GNU General Public License 3</a>.</p>
+
+</div>
 
 </body>
+
 </html>

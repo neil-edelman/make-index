@@ -3,7 +3,8 @@
 <html>
 
 <head>
-<!-- steal these colour values from JavaDocs; meh -->
+<meta http-equiv = "Content-Type" content = "text/html;charset=UTF-8">
+<!-- Steal these colour values from JavaDocs. -->
 <style type = "text/css">
 	a:link,  a:visited { color: #4a6782; }
 	a:hover, a:focus   { color: #bb7a2a; }
@@ -25,224 +26,161 @@
 		padding:          4px;
 	}
 </style>
-<title>Parser</title>
+<title>Parser.c</title>
 </head>
-
 
 <body>
 
-<h1>Parser</h1>
+<h1>Parser.c</h1>
 
 <ul>
-	<li><a href = "#_declarations">Declarations</a></li>
-	<li><a href = "#_summary">Function Summary</a></li>
-	<li><a href = "#_detail">Function Detail</a></li>
+	<li><a href = "#preamble:">Description</a></li>
+	<li><a href = "#summary:">Function Summary</a></li>
+	<li><a href = "#fn:">Function Definitions</a></li>
+	<li><a href = "#license:">License</a></li>
 </ul>
 
-<p>
-Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
-GNU General Public License, see copying.txt
-</p>
-<p>
-Parsing of strings. '~' on a line by itself is recognised in ".newsfile.rss"
-and ".sitemap.xml" as a &lt;head&gt;~&lt;body&gt;~&lt;tail&gt;; there should be two of them.
-</p>
-<p>
-Parsed in ".index.html",
-</p>
+<div>
+
+<h2><a id = "preamble:" name = "preamble:">Description</a></h2>
+
+<p>@title Parser</p>
+
+<p>Parsing of strings. '&nbsp;' on a line by itself is recognized in ".newsfile.rss" and ".sitemap.xml" as a <code>&lt;head&gt;~&lt;body&gt;~&lt;tail&gt;</code>; there should be two of them.</p>
+
+<p>Parsed in ".index.html",</p>
+
 <ul>
-	<li>
-@(content) prints <em>content.d</em>, or, if it is missing, <em>index.d</em>;
-	</li>
-	<li>
-@(files){} repeats for all the files in the directory the contents of the
-argument;
-	</li>
-	<li>
-@(htmlcontent);
-	</li>
-	<li>
-@(pwd){} prints the directory, the argument is the separator;
-eg, @(pwd){/};
-	</li>
-	<li>
-@(root){}, like @(pwd), except up instead of down;
-	</li>
-	<li>
-@(now) prints the date and the time in UTC.
-	</li>
+	<li><code>@(content)</code> prints <code>content.d</code>, or, if it is missing, <code>index.d</code>;</li>
+	<li><code>@(files)\{}</code> repeats for all the files in the directory the contents of the argument;</li>
+	<li><code>@(htmlcontent)</code>;</li>
+	<li><code>@(pwd)\{}</code> prints the directory, the argument is the separator; <em>eg</em>, <code>@(pwd)\{/}</code>;</li>
+	<li><code>@(root)\{}</code>, like <code>@(pwd)</code>, except up instead of down;</li>
+	<li><code>@(now)</code> prints the date and the time in UTC.</li>
 </ul>
-<p>
-Further parsed in @(files)<em></em> in ".index.html",
-</p>
+
+<p>Further parsed in <code>@(files){}</code> in ".index.html",</p>
+
 <ul>
-	<li>
-@(filealt) prints Dir or File;
-	</li>
-	<li>
-@(filedesc);
-	</li>
-	<li>
-@(filehref) prints the filename or the <em>.link</em>;
-	</li>
-	<li>
-@(fileicon) prints it's <em>.d.jpeg</em>, or if it is not there, <em>dir.jpeg</em> or
-<em>file.jpeg</em>;
-	</li>
-	<li>
-@(filename) prints the file name;
-	</li>
-	<li>
-@(filesize) prints the file size, if it exits;
-	</li>
-	<li>
-@(now) prints the date and the time in UTC.
-	</li>
+	<li><code>@(filealt) prints Dir or File; *</code>@(filedesc);</li>
+	<li><code>@(filehref) prints the filename or the</code>.link<code>; *</code>@(fileicon) prints it's <code>.d.jpeg</code>, or if it is not there, <code>dir.jpeg</code> or <code>file.jpeg</code>;</li>
+	<li><code>@(filename)</code> prints the file name;</li>
+	<li><code>@(filesize)</code> prints the file size, if it exits;</li>
+	<li><code>@(now)</code> prints the date and the time in UTC.</li>
 </ul>
-<p>
-Parsed in ".newsfeed.rss",
-</p>
+
+<p>Parsed in ".newsfeed.rss",</p>
+
 <ul>
-	<li>
-@(date) prints the date on the news file;
-	</li>
-	<li>
-@(news) prints the contents of the file (as a text file);
-	</li>
-	<li>
-@(newsname) prints the filename of the news story;
-	</li>
-	<li>
-@(now) prints the date and the time in UTC;
-	</li>
-	<li>
-@(title) prints the second line in the <em>.news</em>.
-	</li>
+	<li><code>@(date)</code> prints the date on the news file;</li>
+	<li><code>@(news)</code> prints the contents of the file (as a text file);</li>
+	<li><code>@(newsname)</code> prints the filename of the news story;</li>
+	<li><code>@(now)</code> prints the date and the time in UTC;</li>
+	<li><code>@(title)</code> prints the second line in the {.news}.</li>
 </ul>
+
 <dl>
-	<dt>minimum standard</dt>
-	<dd>C89/90</dd>
-	<dt>author</dt>
+	<dt>Author:</dt>
 	<dd>Neil</dd>
-	<dt>version</dt>
-	<dd>1.1; 2017-03 fixed pedantic warnings; command-line improvements</dd>
-	<dt>since</dt>
-	<dd>0.6; 2008-03-21</dd>
+	<dt>Standard:</dt>
+	<dd>C89/90</dd>
+	<dt>Caveat:</dt>
+	<dd>(<a href = "#fn:ParserParse">ParserParse</a>)</dd>
 </dl>
 
-
-<a name = "_declarations"><!-- --></a><h2>Declarations</h2>
-
-<div><a name = "struct Parser"><!-- --></a>
-<h3>struct Parser</h3>
-<pre><b>struct Parser</b></pre>
-<p>
-See <a href = "#Parser">Parser</a>.
-</p>
-<dl>
-</dl>
 </div>
 
-<div><a name = "struct Files"><!-- --></a>
-<h3>struct Files</h3>
-<pre><b>struct Files</b></pre>
-<p>
-Dependancy on <em>Files</em>.
-</p>
-<dl>
-</dl>
-</div>
+<div>
 
-<div><a name = "typedef int (*ParserWidget)(struct Files *const files, FILE *const fp)"><!-- --></a>
-<h3>typedef int (*ParserWidget)(struct Files *const files, FILE *const fp)</h3>
-<pre><b>typedef int (*ParserWidget)(struct Files *const files, FILE *const fp)</b></pre>
-<p>
-All <em>ParserWidget</em>s are in <em>Widget.c</em>.
-</p>
-<dl>
-</dl>
-</div>
-
-
-<a name = "_summary"><!-- --></a><h2>Function Summary</h2>
+<h2><a id = "summary:" name = "summary:">Function Summary</a></h2>
 
 <table>
-<tr><th>Return Type</th><th>Function Name</th><th>Argument List</th></tr>
-<tr>
-	<td>struct Parser *</td>
-	<td><a href = "#Parser">Parser</a></td>
-	<td>char *const str</td>
-</tr>
-<tr>
-	<td>void</td>
-	<td><a href = "#Parser_">Parser_</a></td>
-	<td>struct Parser **const p_ptr</td>
-</tr>
-<tr>
-	<td>void</td>
-	<td><a href = "#ParserRewind">ParserRewind</a></td>
-	<td>struct Parser *p</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#ParserParse">ParserParse</a></td>
-	<td>struct Parser *p, struct Files *const f, int invisible,
-	FILE *fp</td>
-</tr>
+
+<tr><th>Modifiers</th><th>Function Name</th><th>Argument List</th></tr>
+
+<tr><td align = right>struct Parser *</td><td><a href = "#fn:Parser">Parser</a></td><td>str</td></tr>
+
+<tr><td align = right>void</td><td><a href = "#fn:Parser_">Parser_</a></td><td>p_ptr</td></tr>
+
+<tr><td align = right>void</td><td><a href = "#fn:ParserRewind">ParserRewind</a></td><td>p</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:ParserParse">ParserParse</a></td><td>p, f, invisible, fp</td></tr>
+
 </table>
 
-
-<a name = "_detail"><!-- --></a><h2>Function Detail</h2>
-
-<div><a name = "Parser"><!-- --></a>
-<h3>Parser</h3>
-<pre>struct Parser * <b>Parser</b> (char *const str)</pre>
-<dl>
-	<dt>return</dt>
-	<dd>Creates a parser for the string, <em>str</em>.</dd>
-</dl>
 </div>
 
-<div><a name = "Parser_"><!-- --></a>
-<h3>Parser_</h3>
-<pre>void <b>Parser_</b> (struct Parser **const p_ptr)</pre>
+<div>
+
+<h2><a id = "fn:" name = "fn:">Function Definitions</a></h2>
+
+<div>
+
+<h3><a id = "fn:Parser" name = "fn:Parser">Parser</a></h3>
+
+<p><code>struct Parser *<strong>Parser</strong>(char *const <em>str</em>)</code></p>
+
 <dl>
-	<dt>parameter: p_ptr</dt>
-	<dd>A pointer to the <em>Parser</em> that's to be destucted.</dd>
+	<dt>Return:</dt>
+	<dd>Creates a parser for the string, {str}.</dd>
 </dl>
+
 </div>
 
-<div><a name = "ParserRewind"><!-- --></a>
-<h3>ParserRewind</h3>
-<pre>void <b>ParserRewind</b> (struct Parser *p)</pre>
-<p>
-Resets the parser, <em>p</em>.
-</p>
+<div>
+
+<h3><a id = "fn:Parser_" name = "fn:Parser_">Parser_</a></h3>
+
+<p><code>void <strong>Parser_</strong>(struct Parser **const <em>p_ptr</em>)</code></p>
+
 <dl>
+	<dt>Parameter: <em>p_ptr</em></dt>
+	<dd>A pointer to the <code>Parser</code> that's to be destucted.</dd>
 </dl>
+
 </div>
 
-<div><a name = "ParserParse"><!-- --></a>
-<h3>ParserParse</h3>
-<pre>int <b>ParserParse</b> (struct Parser *p, struct Files *const f, int invisible,
-	FILE *fp)</pre>
-<p>
-Parse, called recursively.
-</p>
+<div>
+
+<h3><a id = "fn:ParserRewind" name = "fn:ParserRewind">ParserRewind</a></h3>
+
+<p><code>void <strong>ParserRewind</strong>(struct Parser *<em>p</em>)</code></p>
+
+<p>Resets the parser, <code>p</code>.</p>
+
+</div>
+
+<div>
+
+<h3><a id = "fn:ParserParse" name = "fn:ParserParse">ParserParse</a></h3>
+
+<p><code>int <strong>ParserParse</strong>(struct Parser *<em>p</em>, struct Files *const <em>f</em>, int <em>invisible</em>, FILE *<em>fp</em>)</code></p>
+
+<p>Parse, called recursively.</p>
+
 <dl>
-	<dt>parameter: f</dt>
-	<dd>Called in the handler to <em>ParserWidget</em>s.</dd>
-	<dt>parameter: invisible</dt>
+	<dt>Parameter: <em>f</em></dt>
+	<dd>Called in the handler to {ParserWidget}s.</dd>
+	<dt>Parameter: <em>invisible</em></dt>
 	<dd>No output.</dd>
-	<dt>parameter: fp</dt>
+	<dt>Parameter: <em>fp</em></dt>
 	<dd>Output.</dd>
-	<dt>fixme</dt>
-	<dd>This fn needs rewriting; messy.</dd>
-	<dt>fixme</dt>
-	<dd>Invisible, hack.</dd>
+	<dt>Caveat:</dt>
+	<dd>This fn needs rewriting; messy. Invisible, hack.</dd>
 </dl>
+
 </div>
 
+</div>
+
+<div>
+
+<h2><a id = "license:" name = "license:">License</a></h2>
+
+<p>2000, 2012 Neil Edelman, distributed under the terms of the <a href = "https://opensource.org/licenses/GPL-3.0">GNU General Public License 3</a>.</p>
+
+</div>
 
 </body>
+
 </html>

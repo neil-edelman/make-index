@@ -3,7 +3,8 @@
 <html>
 
 <head>
-<!-- steal these colour values from JavaDocs; meh -->
+<meta http-equiv = "Content-Type" content = "text/html;charset=UTF-8">
+<!-- Steal these colour values from JavaDocs. -->
 <style type = "text/css">
 	a:link,  a:visited { color: #4a6782; }
 	a:hover, a:focus   { color: #bb7a2a; }
@@ -25,209 +26,190 @@
 		padding:          4px;
 	}
 </style>
-<title>Files</title>
+<title>Files.c</title>
 </head>
-
 
 <body>
 
-<h1>Files</h1>
+<h1>Files.c</h1>
+
+<h2>Files</h2>
 
 <ul>
-	<li><a href = "#_declarations">Declarations</a></li>
-	<li><a href = "#_summary">Function Summary</a></li>
-	<li><a href = "#_detail">Function Detail</a></li>
+	<li><a href = "#preamble:">Description</a></li>
+	<li><a href = "#summary:">Function Summary</a></li>
+	<li><a href = "#fn:">Function Definitions</a></li>
+	<li><a href = "#license:">License</a></li>
 </ul>
 
-<p>
-Copyright 2008, 2012 Neil Edelman, distributed under the terms of the
-GNU General Public License, see copying.txt, or
-<a href = "https://opensource.org/licenses/GPL-3.0">https://opensource.org/licenses/GPL-3.0</a>.
-</p>
-<p>
-Files is a list of File (private class defiend below,) the Files can have
-a relation to other Files by 'parent' and 'favourite' (@(pwd) uses this.)
-</p>
+<div>
+
+<h2><a id = "preamble:" name = "preamble:">Description</a></h2>
+
+<p><code>Files</code> is a list of <code>File</code>, the <code>Files</code> can have a relation to other Files by <code>parent</code> and <code>favourite</code> (<code>@(pwd)</code> uses this.)</p>
+
 <dl>
-	<dt>minimum standard</dt>
-	<dd>POSIX.1</dd>
-	<dt>author</dt>
+	<dt>Author:</dt>
 	<dd>Neil</dd>
-	<dt>version</dt>
-	<dd>1.1; 2017-03 fixed pedantic warnings; command-line improvements</dd>
-	<dt>since</dt>
-	<dd>0.6; 2008-03-24</dd>
+	<dt>Standard:</dt>
+	<dd>POSIX.1</dd>
 </dl>
 
-
-<a name = "_declarations"><!-- --></a><h2>Declarations</h2>
-
-<div><a name = "struct Files"><!-- --></a>
-<h3>struct Files</h3>
-<pre><b>struct Files</b></pre>
-<p>
-See <a href = "#Files">Files</a>.
-</p>
-<dl>
-</dl>
 </div>
 
-<div><a name = "typedef int (*FilesFilter)(struct Files *const files, const char *file)"><!-- --></a>
-<h3>typedef int (*FilesFilter)(struct Files *const files, const char *file)</h3>
-<pre><b>typedef int (*FilesFilter)(struct Files *const files, const char *file)</b></pre>
-<p>
-Returns a boolean value on whether <em>files</em> should include <em>file</em>.
-</p>
-<dl>
-</dl>
-</div>
+<div>
 
-
-<a name = "_summary"><!-- --></a><h2>Function Summary</h2>
+<h2><a id = "summary:" name = "summary:">Function Summary</a></h2>
 
 <table>
-<tr><th>Return Type</th><th>Function Name</th><th>Argument List</th></tr>
-<tr>
-	<td>struct Files *</td>
-	<td><a href = "#Files">Files</a></td>
-	<td>struct Files *const parent, const FilesFilter filter</td>
-</tr>
-<tr>
-	<td>void</td>
-	<td><a href = "#Files_">Files_</a></td>
-	<td>struct Files *files</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#FilesAdvance">FilesAdvance</a></td>
-	<td>struct Files *f</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#FilesIsRoot">FilesIsRoot</a></td>
-	<td>const struct Files *f</td>
-</tr>
-<tr>
-	<td>void</td>
-	<td><a href = "#FilesSetPath">FilesSetPath</a></td>
-	<td>struct Files *f</td>
-</tr>
-<tr>
-	<td>const char *</td>
-	<td><a href = "#FilesEnumPath">FilesEnumPath</a></td>
-	<td>struct Files *const files</td>
-</tr>
-<tr>
-	<td>const char *</td>
-	<td><a href = "#FilesName">FilesName</a></td>
-	<td>const struct Files *const files</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#FilesSize">FilesSize</a></td>
-	<td>const struct Files *files</td>
-</tr>
-<tr>
-	<td>int</td>
-	<td><a href = "#FilesIsDir">FilesIsDir</a></td>
-	<td>const struct Files *files</td>
-</tr>
+
+<tr><th>Modifiers</th><th>Function Name</th><th>Argument List</th></tr>
+
+<tr><td align = right>struct Files *</td><td><a href = "#fn:Files">Files</a></td><td>parent, filter</td></tr>
+
+<tr><td align = right>void</td><td><a href = "#fn:Files_">Files_</a></td><td>files</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:FilesAdvance">FilesAdvance</a></td><td>f</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:FilesIsRoot">FilesIsRoot</a></td><td>f</td></tr>
+
+<tr><td align = right>void</td><td><a href = "#fn:FilesSetPath">FilesSetPath</a></td><td>f</td></tr>
+
+<tr><td align = right>const char *</td><td><a href = "#fn:FilesEnumPath">FilesEnumPath</a></td><td>files</td></tr>
+
+<tr><td align = right>const char *</td><td><a href = "#fn:FilesName">FilesName</a></td><td>files</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:FilesSize">FilesSize</a></td><td>files</td></tr>
+
+<tr><td align = right>int</td><td><a href = "#fn:FilesIsDir">FilesIsDir</a></td><td>files</td></tr>
+
 </table>
 
+</div>
 
-<a name = "_detail"><!-- --></a><h2>Function Detail</h2>
+<div>
 
-<div><a name = "Files"><!-- --></a>
-<h3>Files</h3>
-<pre>struct Files * <b>Files</b> (struct Files *const parent, const FilesFilter filter)</pre>
-<p>
-Directory information.
-</p>
+<h2><a id = "fn:" name = "fn:">Function Definitions</a></h2>
+
+<div>
+
+<h3><a id = "fn:Files" name = "fn:Files">Files</a></h3>
+
+<p><code>struct Files *<strong>Files</strong>(struct Files *const <em>parent</em>, const FilesFilter <em>filter</em>)</code></p>
+
+<p>Directory information.</p>
+
 <dl>
-	<dt>parameter: parent</dt>
-	<dd><em>parent-&gt;this</em> must be the 'file' (directory) that you want to
- create.</dd>
-	<dt>parameter: filter</dt>
+	<dt>Parameter: <em>parent</em></dt>
+	<dd><code>parent-&gt;this</code> must be the 'file' (directory) that you want to create.</dd>
+	<dt>Parameter: <em>filter</em></dt>
 	<dd>This returns true on the files that you want included.</dd>
 </dl>
+
 </div>
 
-<div><a name = "Files_"><!-- --></a>
-<h3>Files_</h3>
-<pre>void <b>Files_</b> (struct Files *files)</pre>
-<p>
-Destructor.
-</p>
+<div>
+
+<h3><a id = "fn:Files_" name = "fn:Files_">Files_</a></h3>
+
+<p><code>void <strong>Files_</strong>(struct Files *<em>files</em>)</code></p>
+
+<p>Destructor.</p>
+
+</div>
+
+<div>
+
+<h3><a id = "fn:FilesAdvance" name = "fn:FilesAdvance">FilesAdvance</a></h3>
+
+<p><code>int <strong>FilesAdvance</strong>(struct Files *<em>f</em>)</code></p>
+
+<p>This is how we access the files sequentially.</p>
+
+</div>
+
+<div>
+
+<h3><a id = "fn:FilesIsRoot" name = "fn:FilesIsRoot">FilesIsRoot</a></h3>
+
+<p><code>int <strong>FilesIsRoot</strong>(const struct Files *<em>f</em>)</code></p>
+
+<p>Doesn't have a parent?</p>
+
+</div>
+
+<div>
+
+<h3><a id = "fn:FilesSetPath" name = "fn:FilesSetPath">FilesSetPath</a></h3>
+
+<p><code>void <strong>FilesSetPath</strong>(struct Files *<em>f</em>)</code></p>
+
+<p>Resets the list of favourites.</p>
+
+</div>
+
+<div>
+
+<h3><a id = "fn:FilesEnumPath" name = "fn:FilesEnumPath">FilesEnumPath</a></h3>
+
+<p><code>const char *<strong>FilesEnumPath</strong>(struct Files *const <em>files</em>)</code></p>
+
 <dl>
+	<dt>Return:</dt>
+	<dd>After \see{FilesSetPath}, this enumerates them.</dd>
 </dl>
+
 </div>
 
-<div><a name = "FilesAdvance"><!-- --></a>
-<h3>FilesAdvance</h3>
-<pre>int <b>FilesAdvance</b> (struct Files *f)</pre>
-<p>
-This is how we access the files sequentially.
-</p>
-<dl>
-</dl>
-</div>
+<div>
 
-<div><a name = "FilesIsRoot"><!-- --></a>
-<h3>FilesIsRoot</h3>
-<pre>int <b>FilesIsRoot</b> (const struct Files *f)</pre>
-<p>
-Doesn't have a parent?
-</p>
-<dl>
-</dl>
-</div>
+<h3><a id = "fn:FilesName" name = "fn:FilesName">FilesName</a></h3>
 
-<div><a name = "FilesSetPath"><!-- --></a>
-<h3>FilesSetPath</h3>
-<pre>void <b>FilesSetPath</b> (struct Files *f)</pre>
-<p>
-Resets the list of favourites.
-</p>
-<dl>
-</dl>
-</div>
+<p><code>const char *<strong>FilesName</strong>(const struct Files *const <em>files</em>)</code></p>
 
-<div><a name = "FilesEnumPath"><!-- --></a>
-<h3>FilesEnumPath</h3>
-<pre>const char * <b>FilesEnumPath</b> (struct Files *const files)</pre>
 <dl>
-	<dt>return</dt>
-	<dd>After <a href = "#FilesSetPath">FilesSetPath</a>, this enumerates them.</dd>
-</dl>
-</div>
-
-<div><a name = "FilesName"><!-- --></a>
-<h3>FilesName</h3>
-<pre>const char * <b>FilesName</b> (const struct Files *const files)</pre>
-<dl>
-	<dt>return</dt>
+	<dt>Return:</dt>
 	<dd>The file name of the selected file.</dd>
 </dl>
+
 </div>
 
-<div><a name = "FilesSize"><!-- --></a>
-<h3>FilesSize</h3>
-<pre>int <b>FilesSize</b> (const struct Files *files)</pre>
+<div>
+
+<h3><a id = "fn:FilesSize" name = "fn:FilesSize">FilesSize</a></h3>
+
+<p><code>int <strong>FilesSize</strong>(const struct Files *<em>files</em>)</code></p>
+
 <dl>
-	<dt>return</dt>
+	<dt>Return:</dt>
 	<dd>File size of the selected file in KB.</dd>
 </dl>
+
 </div>
 
-<div><a name = "FilesIsDir"><!-- --></a>
-<h3>FilesIsDir</h3>
-<pre>int <b>FilesIsDir</b> (const struct Files *files)</pre>
+<div>
+
+<h3><a id = "fn:FilesIsDir" name = "fn:FilesIsDir">FilesIsDir</a></h3>
+
+<p><code>int <strong>FilesIsDir</strong>(const struct Files *<em>files</em>)</code></p>
+
 <dl>
-	<dt>return</dt>
+	<dt>Return:</dt>
 	<dd>Whether the file is a directory.</dd>
 </dl>
+
 </div>
 
+</div>
+
+<div>
+
+<h2><a id = "license:" name = "license:">License</a></h2>
+
+<p>2000, 2012 Neil Edelman, distributed under the terms of the <a href = "https://opensource.org/licenses/GPL-3.0">GNU General Public License 3</a>.</p>
+
+</div>
 
 </body>
+
 </html>
