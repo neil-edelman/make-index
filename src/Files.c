@@ -5,7 +5,7 @@
  @author Neil
 
  `Files` is a list of `File`, the `Files` can have
- a relation to other Files by `parent` and `favourite` (`@(pwd)` uses this.)
+ a relation to other Files by `parent` and `favourite`.
 
  @std POSIX.1 */
 
@@ -14,6 +14,8 @@
 #include <string.h>   /* strcmp strstr */
 #include <dirent.h>   /* opendir readdir closedir */
 #include <sys/stat.h> /* fstat */
+#include <assert.h>
+#include "MakeIndex.h" /* `why` */
 #include "Files.h"
 
 /* constants */
@@ -54,10 +56,9 @@ struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 	struct File   *file;
 	struct Files  *files;
 	DIR           *dir;
-	if(parent && !parent->this) { fprintf(stderr, "Files: tried creating a "
-		"directory without selecting a file (parent->this.)\n"); return 0; }
-	files = malloc(sizeof *files);
-	if(!files) { perror("files"); Files_(files); return 0; }
+	assert(!parent || parent->this);
+	if(!(files = malloc(sizeof *files)))
+		{ why = "files"; Files_(files); return 0; }
 	/* does not check for recusive dirs - assumes that it is a tree */
 	files->parent    = parent;
 	files->favourite = 0;

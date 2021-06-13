@@ -28,6 +28,7 @@
 #include "Files.h"
 #include "Widget.h"
 #include "Parser.h"
+#include "MakeIndex.h"
 
 /* constants */
 static const size_t granularity      = 1024;
@@ -42,8 +43,8 @@ extern const char *dir_current;
 extern const char *dir_parent;
 /* in Widget.c */
 extern const char *dot_news;
-
-static const char *why;
+/* in here */
+const char *why;
 
 /* Singleton. */
 static struct recursor {
@@ -238,7 +239,7 @@ static int recurse(struct Files *const parent) {
 	struct Files *f;
 	const char   *name;
 	FILE         *fp;
-	f = Files(parent, &filter);
+	if(!(f = Files(parent, &filter))) { why = "files"; return 0; }
 	/* write the index */
 	if((fp = fopen(html_index, "w"))) {
 		ParserParse(r->index.parser, f, 0, fp);
