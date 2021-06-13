@@ -28,7 +28,6 @@
 #include "Files.h"
 #include "Widget.h"
 #include "Parser.h"
-#include "MakeIndex.h"
 
 /* constants */
 static const size_t granularity      = 1024;
@@ -43,8 +42,9 @@ extern const char *dir_current;
 extern const char *dir_parent;
 /* in Widget.c */
 extern const char *dot_news;
-/* in here */
-const char *why;
+
+/* Error reporting. */
+static const char *why;
 
 /* Singleton. */
 static struct recursor {
@@ -257,7 +257,7 @@ static int recurse(struct Files *const parent) {
 		   !strcmp(dir_parent,  name) ||
 		   !(name = FilesName(f))) continue;
 		if(chdir(name)) { perror(name); continue; }
-		recurse(f);
+		if(!recurse(f)) return 0;
 		/* this happens on Windows; I don't know what to do */
 		if(chdir(dir_parent)) perror(dir_parent);
 	}

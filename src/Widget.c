@@ -22,7 +22,6 @@
 #include <time.h>   /* time gmtime - for @date */
 #include "Files.h"
 #include "Parser.h"
-#include "MakeIndex.h"
 #include "Widget.h"
 
 /* <-- ugly */

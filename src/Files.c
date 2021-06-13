@@ -15,7 +15,6 @@
 #include <dirent.h>   /* opendir readdir closedir */
 #include <sys/stat.h> /* fstat */
 #include <assert.h>
-#include "MakeIndex.h" /* `why` */
 #include "Files.h"
 
 /* constants */
@@ -57,8 +56,7 @@ struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 	struct Files  *files;
 	DIR           *dir;
 	assert(!parent || parent->this);
-	if(!(files = malloc(sizeof *files)))
-		{ why = "files"; Files_(files); return 0; }
+	if(!(files = malloc(sizeof *files))) { Files_(files); return 0; }
 	/* does not check for recusive dirs - assumes that it is a tree */
 	files->parent    = parent;
 	files->favourite = 0;
