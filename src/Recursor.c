@@ -186,7 +186,8 @@ finally:
 	return r;
 }
 
-/** @implements FilesFilter */
+/** @return Binary value that says if `files` say `fn` should be included.
+ @implements FilesFilter */
 static int filter(struct Files *const files, const char *fn) {
 	const char *str;
 	char filed[64];
@@ -217,24 +218,22 @@ static int filter(struct Files *const files, const char *fn) {
 	/* index.html */
 	if(!strcmp(fn, html_index))  return 0;
 	/* add .d, check 1 line for \n (hmm, this must be a real time waster) */
-	if(strlen(fn) > sizeof(filed) - strlen(dot_desc) - 1) {
-		fprintf(stderr, "Recusor::filter: regected '%s' because it was too long (%d.)\n", fn, (int)sizeof(filed));
-		return 0;
-	}
+	if(strlen(fn) > sizeof(filed) - strlen(dot_desc) - 1)
+		return fprintf(stderr,
+		"Recusor::filter: regected '%s' because it was too long (%d.)\n",
+		fn, (int)sizeof(filed)), 0;
 	strcpy(filed, fn);
 	strcat(filed, dot_desc);
 	if((fd = fopen(filed, "r"))) {
 		int ch = fgetc(fd);
-		if(ch == '\n' || ch == '\r' || ch == EOF) {
-			fprintf(stderr, "Recursor::filter: '%s' rejected.\n", fn);
-			return 0;
-		}
+		if(ch == '\n' || ch == '\r' || ch == EOF)
+			return fprintf(stderr, "Recursor::filter: '%s' rejected.\n", fn), 0;
 		if(fclose(fd)) perror(filed);
 	}
-	return -1;
+	return 1;
 }
 
-/** Called recursively with `parent`. @return -1. */
+/** Called recursively with `parent` initially set to null. @return True. */
 static int recurse(struct Files *const parent) {
 	struct Files *f;
 	const char   *name;
@@ -262,10 +261,10 @@ static int recurse(struct Files *const parent) {
 		if(chdir(dir_parent)) perror(dir_parent);
 	}
 	Files_(f);
-	return -1;
+	return 1;
 }
 
-/* Entry-point (shouldn't have a prototype.) */
+/** Make sure that `argc`, `argv`, aren't expecting user input. */
 int main(int argc, char **argv) {
 	int ret = EXIT_FAILURE;
 	(void)argv;
