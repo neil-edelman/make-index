@@ -13,9 +13,10 @@
 
  See Parser for more information.
 
- @std POSIX.1
- @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
- @since		0.6; 2008-03-25 */
+ @std POSIX.1 */
+
+/* 2017-03 fixed pedantic warnings; command-line improvements
+ 2008-03-25 */
 
 #include <string.h> /* strncat strncpy */
 #include <stdio.h>  /* fprintf FILE */
@@ -48,7 +49,7 @@ static char filenews[64] = "(no file name)";
 int clip(int no, const int low, const int high);
 
 /** I don't know what this does with `fn`. */
-int WidgetSetNews(const char *fn) {
+int WidgetWriteNews(const char *fn) {
 	char *dot;
 	int  read;
 	size_t tLen;

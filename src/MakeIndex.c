@@ -208,7 +208,7 @@ static int filter(struct Files *const files, const char *fn) {
 	if((str = strstr(fn, dot_news))) {
 		str += strlen(dot_news);
 		if(*str == '\0') {
-			if(WidgetSetNews(fn)
+			if(WidgetWriteNews(fn)
 				&& ParserParse(r->newsfeed.parser, r->newsfeed.fp, files, 0)) {
 				ParserRewind(r->newsfeed.parser);
 			} else {

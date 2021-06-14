@@ -4,7 +4,7 @@ struct Recursor;
 struct Files;
 
 void WidgetSetRecursor(const struct Recursor *recursor);
-int WidgetSetNews(const char *fn);
+int WidgetWriteNews(const char *fn);
 /* the widget handlers */
 int WidgetDate(struct Files *const f, FILE *const fp);
 int WidgetContent(struct Files *const f, FILE *const fp);
