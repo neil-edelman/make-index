@@ -144,7 +144,7 @@ static struct recursor *recursor(void) {
 	/* read index template -- index is opened multiple times */
 	if(!(fp = fopen(template_index, "r"))) { /* This is not an error. */
 		perror(template_index);
-		fprintf(stderr, "Recursor: to make an index, create the file <%s>.\n",
+		fprintf(stderr, "MakeIndex: to make an index, create the file <%s>.\n",
 			template_index);
 	} else if(!(r->index.string = read_until_close(fp))
 		|| !(r->index.parser = Parser(r->index.string)))
@@ -153,7 +153,7 @@ static struct recursor *recursor(void) {
 	/* read sitemap template */
 	if(!(fp = fopen(template_sitemap, "r"))) { /* This is not an error. */
 		perror(template_sitemap);
-		fprintf(stderr, "Recursor: to make a sitemap, create the file <%s>.\n",
+		fprintf(stderr, "MakeIndex: to make a sitemap, create the file <%s>.\n",
 			template_sitemap);
 	} else {
 		if(!(r->sitemap.string = read_until_close(fp))
@@ -166,7 +166,7 @@ static struct recursor *recursor(void) {
 	/* read newsfeed template */
 	if(!(fp = fopen(template_newsfeed, "r"))) { /* This is not an error. */
 		perror(template_newsfeed);
-		fprintf(stderr, "Recursor: to make a newsfeed, create the file <%s>.\n",
+		fprintf(stderr, "MakeIndex: to make a newsfeed, create the file <%s>.\n",
 			template_newsfeed);
 	} else {
 		if(!(r->newsfeed.string = read_until_close(fp))
@@ -209,11 +209,12 @@ static int filter(struct Files *const files, const char *fn) {
 	if((str = strstr(fn, dot_news))) {
 		str += strlen(dot_news);
 		if(*str == '\0') {
-			if(WidgetWriteNews(fn)
+			if(WidgetSetNews(fn)
 				&& ParserParse(r->newsfeed.parser, r->newsfeed.fp, files, 0)) {
 				ParserRewind(r->newsfeed.parser);
 			} else {
-				fprintf(stderr, "Recursor::filter: error writing news <%s>.\n", fn);
+				fprintf(stderr, "MakeIndex::filter: error writing news <%s>.\n",
+					fn);
 			}
 			return 0;
 		}
@@ -231,9 +232,9 @@ static int filter(struct Files *const files, const char *fn) {
 	strcat(filed, dot_desc);
 	if((fd = fopen(filed, "r"))) {
 		int ch = fgetc(fd);
-		if(ch == '\n' || ch == '\r' || ch == EOF) return fprintf(stderr,
-			"Recursor::filter: '%s' rejected because .d.\n", fn), 0;
 		if(fclose(fd)) perror(filed);
+		if(ch == '\n' || ch == '\r' || ch == EOF) return fprintf(stderr,
+			"MakeIndex::filter: '%s' rejected because .d.\n", fn), 0;
 	}
 	return 1;
 }

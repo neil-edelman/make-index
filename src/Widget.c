@@ -54,35 +54,41 @@ static int clip(int no, const int low, const int high) {
 	return no;
 }
 
-/** Reads the news from `fn` into static variables. @return Success. */
-int WidgetWriteNews(const char *fn) {
+/** Reads the news from `fn` into static variables for display in widgets. This
+ will override the last one. @return Success. */
+int WidgetSetNews(const char *fn) {
 	char *dot;
 	int  read;
 	size_t tLen;
-	FILE *fp;
+	FILE *fp = 0;
+	int success = 0;
 	if(!fn || !(dot = strstr(fn, dot_news)) || strlen(fn) > sizeof filenews - 1)
-		return fprintf(stderr,
+		{ fprintf(stderr,
 		"Widget::WriteNews: news file invalid or too long (%lu,) <%s>.\n",
-		(unsigned long)sizeof filenews, fn), errno = EDOM, 0;
+		(unsigned long)sizeof filenews, fn); errno = EDOM; goto catch; }
 	/* save the fn, safe because we checked it, and strip off .news */
 	strcpy(filenews, fn);
 	filenews[dot - fn] = '\0';
 	/* open .news */
-	if(!(fp = fopen(fn, "r"))) return 0;
+	if(!(fp = fopen(fn, "r"))) goto catch;
 	read = fscanf(fp, "%d-%d-%d\n", &year, &month, &day);
-	if(read < 3) return fprintf(stderr,
+	if(read < 3) { fprintf(stderr,
 		"Widget::WriteNews: error parsing ISO 8601, <YYYY-MM-DD>, <%s>.\n",
-		fn), errno = EDOM, 0;
+		fn); errno = EDOM; goto catch; }
 	month = clip(month, 1, 12);
 	day   = clip(day,   1, 31);
 	/* fgets reads a newline at the end (annoying) so we strip that off */
-	if(!fgets(title, (int)sizeof(title), fp)) { perror(fn); *title = '\0'; }
+	if(!fgets(title, (int)sizeof(title), fp)) { *title = '\0'; goto catch; }
 	else if((tLen = strlen(title)) > 0 && title[tLen - 1] == '\n')
 		title[tLen - 1] = '\0';
-	if(fclose(fp)) perror(fn);
 	fprintf(stderr, "News <%s>, '%s' %d-%d-%d.\n",
 		filenews, title, year, month, day);
-	return 1;
+	success = 1;
+	goto finally;
+catch:
+finally:
+	if(fp && fclose(fp)) perror(fn);
+	return success;
 }
 
 /* the widget handlers */
@@ -181,7 +187,7 @@ int WidgetFileicon(struct Files *const f, FILE *const fp) {
 	strncat(buf, picture, 6lu);
 	if((in = fopen(buf, "r"))) {
 		fprintf(fp, "%s", buf);
-		if(fclose(in)) perror(buf);
+		if(fclose(in) == EOF) perror(buf);
 	} else {
 		/* added thing to get to root instead of / because sometimes 'root'
 		 is not the real root! eg www.geocities.com/~foo/; does the same thing
@@ -221,7 +227,7 @@ int WidgetNews(struct Files *const f, FILE *const fp) {
 	if(!(in = fopen(filenews, "r"))) { perror(filenews); return 0; }
 	for(i = 0; (i < max_read) && (bufpos = fgets(buf, (int)sizeof(buf), in));
 		i++) fprintf(fp, "%s", bufpos);
-	if(fclose(in)) perror(filenews);
+	if(fclose(in) == EOF) perror(filenews);
 	return 0;
 }
 /** Ignores `f`. Writes to `fp` the global name of the current news.
