@@ -6,36 +6,24 @@
 
  Widgets like @(files), @(pwd). To create a widget:
 
- * stick the code below implementing `ParserWidget`;
- * create a prototype in `Widget.h`;
- * in `Parser.c`, add to the symbol table, `sym[]` with the symbol you want, in
-   ASCIIbetical order.
+ \* stick the code below implementing `ParserWidget`;
+ \* create a prototype in `Widget.h`;
+ \* in `Parser.c`, add to the symbol table, `sym[]` with the symbol you want,
+    in ASCIIbetical order.
 
  See Parser for more information.
 
- @std		POSIX.1
+ @std POSIX.1
  @version	1.1; 2017-03 fixed pedantic warnings; command-line improvements
  @since		0.6; 2008-03-25 */
 
 #include <string.h> /* strncat strncpy */
 #include <stdio.h>  /* fprintf FILE */
 #include <time.h>   /* time gmtime - for @date */
+#include <assert.h>
 #include "Files.h"
 #include "Parser.h"
 #include "Widget.h"
-
-/* <-- ugly */
-#ifndef _MSC_VER /* <-- not msvc */
-#define UNUSED(a) while(0 && (a))
-#else /* not msvc --><-- msvc: not a C89/90 compiler; needs a little help */
-#pragma warning(push)
-/* "Assignment within conditional expression." No. */
-#pragma warning(disable: 4706)
-/* "<ANSI/ISO name>: The POSIX name for this item is deprecated." No. */
-#pragma warning(disable: 4996)
-#define UNUSED(a) (void)(sizeof((a), 0))
-#endif /* msvc --> */
-/* ugly --> */
 
 /* constants */
 static const char *html_desc    = "index.d";
@@ -66,9 +54,9 @@ int WidgetSetNews(const char *fn) {
 	size_t tLen;
 	FILE *fp;
 	if(!fn || !(dot = strstr(fn, dot_news))) return 0;
-	if(strlen(fn) > sizeof(filenews) / sizeof(char) - sizeof(char)) {
+	if(strlen(fn) > sizeof filenews - 1) {
 		fprintf(stderr, "Widget::SetNews: news file name, \"%s,\" doesn't fit "
-			"in buffer (%d.)\n", fn, (int)(sizeof(filenews) / sizeof(char)));
+			"in buffer (%u.)\n", fn, (unsigned)sizeof filenews);
 		return 0;
 	}
 	/* save the fn, safe because we checked it, and strip off .news */
@@ -99,8 +87,8 @@ int WidgetContent(struct Files *const f, FILE *const fp) {
 	size_t i;
 	FILE *in;
 
+	(void)f;
 	printf("WidgetContent.\n");
-	UNUSED(f);
 	/* it's a nightmare to test if this is text (which most is,) in which case
 	 we should insert <p>...</p> after every paragraph, <>& -> &lt;&gt;&amp;,
 	 but we have to not translate already encoded html; the only solution that
@@ -117,7 +105,7 @@ int WidgetContent(struct Files *const f, FILE *const fp) {
 }
 /** @implements ParserWidget */
 int WidgetDate(struct Files *const f, FILE *const fp) {
-	UNUSED(f);
+	(void)f;
 	/* ISO 8601 - YYYY-MM-DD */
 	fprintf(fp, "%4.4d-%2.2d-%2.2d", year, month, day);
 	return 0;
@@ -220,7 +208,7 @@ int WidgetNews(struct Files *const f, FILE *const fp) {
 	size_t i;
 	FILE *in;
 
-	UNUSED(f);
+	(void)f;
 	if(!filenews[0]) return 0;
 	if(!(in = fopen(filenews, "r"))) { perror(filenews); return 0; }
 	for(i = 0; (i < max_read) && (bufpos = fgets(buf, (int)sizeof(buf), in));
@@ -232,7 +220,7 @@ int WidgetNews(struct Files *const f, FILE *const fp) {
 }
 /** @implements ParserWidget */
 int WidgetNewsname(struct Files *const f, FILE *const fp) {
-	UNUSED(f);
+	(void)f;
 	fprintf(fp, "%s", filenews);
 	return 0;
 }
@@ -242,7 +230,7 @@ int WidgetNow(struct Files *const f, FILE *const fp) {
 	time_t    currentTime;
 	struct tm *formatedTime;
 
-	UNUSED(f);
+	(void)f;
 	if((currentTime = time(0)) == (time_t)(-1)) { perror("@date"); return 0; }
 	formatedTime = gmtime(&currentTime);
 	/* ISO 8601 - YYYY-MM-DDThh:mm:ssTZD */
@@ -272,12 +260,13 @@ int WidgetRoot(struct Files *const f, FILE *const fp) {
 }
 /** @implements ParserWidget */
 int WidgetTitle(struct Files *const f, FILE *const fp) {
-	UNUSED(f);
+	(void)f;
 	fprintf(fp, "%s", title);
 	return 0;
 }
 
 int clip(int no, const int low, const int high) {
+	assert(low <= high);
 	if(no < low)       no = low;
 	else if(no > high) no = high;
 	return no;

@@ -117,8 +117,8 @@ void ParserRewind(struct Parser *p) {
  @param[fp] Output.
  @fixme This fn needs rewriting; messy.
  @fixme Invisible, hack. */
-int ParserParse(struct Parser *p, struct Files *const f, int invisible,
-	FILE *fp) {
+int ParserParse(struct Parser *p, FILE *fp,
+	struct Files *const f, int invisible) {
 	char *mark;
 	if(!p || !fp || !p->pos) return 0;
 	if(++p->recursion > maxRecursion) fprintf(stderr, "Parser::parse: %d "
@@ -142,7 +142,7 @@ int ParserParse(struct Parser *p, struct Files *const f, int invisible,
 				if(!invisible) fprintf(fp, "%.*s", (int)(p->pos - mark), mark);
 				p->pos += 2; /* "~\n" */
 				p->recursion = 0;
-				return -1;
+				return 1;
 			}
 			p->pos++;
 		} else if(*(p->pos + 1) == '(') { /* the only one left is @ */
@@ -160,7 +160,7 @@ int ParserParse(struct Parser *p, struct Files *const f, int invisible,
 				if(m && m->handler && !invisible) over = m->handler(f, fp);
 				p->pos = end + (open ? 2 : 1);
 				/* recurse between {} */
-				if(open) ParserParse(p, f, invisible || !over, fp);
+				if(open) ParserParse(p, fp, f, invisible || !over);
 			} while(over);
 			mark = p->pos;
 		} else { /* @ by itself */

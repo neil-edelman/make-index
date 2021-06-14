@@ -13,9 +13,9 @@
  the directory structure and the templates.
 
  @std POSIX.1
- @fixme Borrow `Cdoc` parser for the `.d` files. (`lex` is pretty good.)
+ @fixme Parse `.d` files.
  @fixme Encoding is an issue; especially the newsfeed, which requires 7-bit.
- @fixme It's not robust; eg @(files){@(files){Don't do this.}}. */
+ @fixme It's not robust; _eg_ `@(files){@(files){Don't do this.}}`. */
 
 #include <stdlib.h>		/* malloc free fgets */
 #include <stdio.h>		/* fprintf FILE */
@@ -52,8 +52,6 @@ static struct recursor {
 	struct { char *string; struct Parser *parser; FILE *fp; } sitemap, newsfeed;
 } *r;
 
-/* private */
-
 static void usage(void) {
 	static const char *programme = "make-index";
 	fprintf(stderr,
@@ -81,26 +79,27 @@ static void usage(void) {
 		"GNU General Public License 3.\n\n");
 }
 
-/** This is not that great for error handling.
- @return Reads the entire `filename` and sticks it into a dynamically
- allocated string. One must `free` the memory. */
-static char *readFile(const char *filename) {
+/** Reads the entire rest of `fp` and closes it.
+ @return A dynamically allocated string. One must `free` the memory.
+ @throws[realloc, fread, fclose, EILSEQ] */
+static char *read_until_close(FILE *fp) {
 	char *buf = 0, *newBuf;
 	size_t bufPos = 0, bufSize = 0, rd;
-	FILE *fp;
-	if(!filename) return 0;
-	if(!(fp = fopen(filename, "r"))) { perror(filename); return 0; }
-	for( ; ; ) {
-		newBuf = realloc(buf, (bufSize += granularity) * sizeof(char));
-		if(!newBuf) { perror(filename); free(buf); return 0; }
-		buf     = newBuf;
-		rd      = fread(buf + bufPos, sizeof(char), granularity, fp);
-		bufPos += rd;
-		if(rd < granularity) { buf[bufPos] = '\0'; break; }
-	}
-	fprintf(stderr, "Opened '%s' and alloted %lu bytes to read %lu bytes.\n",
-		filename, bufSize, bufPos);
-	if(fclose(fp)) perror(filename);
+	assert(fp);
+	do {
+		if(!(newBuf = realloc(buf, bufSize += granularity))) goto catch;
+		buf = newBuf;
+		bufPos += (rd = fread(buf + bufPos, 1, granularity, fp));
+	} while(rd == granularity);
+	buf[bufPos] = '\0';
+	if(ferror(fp)) { if(!errno) errno = EILSEQ; goto catch; }
+	fprintf(stderr, "Allotted %lu bytes to read %lu bytes.\n",
+		(unsigned long)bufSize, (unsigned long)bufPos);
+	goto finally;
+catch:
+	free(buf), buf = 0;
+finally:
+	if(fp && fclose(fp) == EOF) { fp = 0; goto catch; };
 	return buf;
 }
 
@@ -108,13 +107,13 @@ static char *readFile(const char *filename) {
 static void recursor_(void) {
 	if(!r) return;
 	if(r->sitemap.parser && r->sitemap.fp)  {
-		ParserParse(r->sitemap.parser,  0, -1, r->sitemap.fp);
-		ParserParse(r->sitemap.parser,  0, 0,  r->sitemap.fp);
+		ParserParse(r->sitemap.parser, r->sitemap.fp, 0, -1);
+		ParserParse(r->sitemap.parser, r->sitemap.fp, 0, 0);
 	}
 	if(r->sitemap.fp && fclose(r->sitemap.fp)) perror(xml_sitemap);
 	if(r->newsfeed.parser && r->newsfeed.fp) {
-		ParserParse(r->newsfeed.parser, 0, -1, r->newsfeed.fp);
-		ParserParse(r->newsfeed.parser, 0, 0,  r->newsfeed.fp);
+		ParserParse(r->newsfeed.parser, r->newsfeed.fp, 0, -1);
+		ParserParse(r->newsfeed.parser, r->newsfeed.fp, 0, 0);
 	}
 	if(r->newsfeed.fp && fclose(r->newsfeed.fp)) perror(rss_newsfeed);
 	Parser_(&r->index.parser);
@@ -129,6 +128,7 @@ static void recursor_(void) {
 
 /** Constructor of singleton. */
 static struct recursor *recursor(void) {
+	FILE *fp = 0;
 	assert(!r);
 	if(!(r = malloc(sizeof *r))) { why = "recursor"; goto catch; };
 	r->index.string = 0;
@@ -139,36 +139,40 @@ static struct recursor *recursor(void) {
 	r->newsfeed.string = 0;
 	r->newsfeed.parser = 0;
 	r->newsfeed.fp = 0;
+
 	/* read index template -- index is opened multiple times */
-	if(!(r->index.string = readFile(template_index))) {
+	if(!(fp = fopen(template_index, "r"))) { /* This is not an error. */
+		perror(template_index);
 		fprintf(stderr, "Recursor: to make an index, create the file <%s>.\n",
 			template_index);
-	} else {
-		if(!(r->index.parser = Parser(r->index.string)))
-			{ why = template_index; goto catch; }
-	}
+	} else if(!(r->index.string = read_until_close(fp))
+		|| !(r->index.parser = Parser(r->index.string)))
+		{ why = template_index; goto catch; }
 
 	/* read sitemap template */
-	if(!(r->sitemap.string = readFile(template_sitemap))) {
-		fprintf(stderr, "Recursor: to make an sitemap, create the file <%s>.\n",
+	if(!(fp = fopen(template_sitemap, "r"))) { /* This is not an error. */
+		perror(template_sitemap);
+		fprintf(stderr, "Recursor: to make a sitemap, create the file <%s>.\n",
 			template_sitemap);
 	} else {
+		if(!(r->sitemap.string = read_until_close(fp))
+			|| !(r->sitemap.parser = Parser(r->sitemap.string)))
+			{ why = template_sitemap; goto catch; }
 		if(!(r->sitemap.fp = fopen(xml_sitemap,  "w")))
 			{ why = xml_sitemap; goto catch; }
-		if(!(r->sitemap.parser = Parser(r->sitemap.string)))
-			{ why = template_sitemap; goto catch; }
 	}
 
 	/* read newsfeed template */
-	if(!(r->newsfeed.string = readFile(template_newsfeed))) {
+	if(!(fp = fopen(template_newsfeed, "r"))) { /* This is not an error. */
+		perror(template_newsfeed);
 		fprintf(stderr, "Recursor: to make a newsfeed, create the file <%s>.\n",
 			template_newsfeed);
 	} else {
+		if(!(r->newsfeed.string = read_until_close(fp))
+			|| !(r->newsfeed.parser = Parser(r->newsfeed.string)))
+			{ why = template_newsfeed; goto catch; }
 		if(!(r->newsfeed.fp = fopen(rss_newsfeed, "w")))
 			{ why = rss_newsfeed; goto catch; }
-		if(!(r->newsfeed.parser = Parser(r->newsfeed.string))) {
-			{ why = template_newsfeed; goto catch; }
-		}
 	}
 
 	/* if there's no content, we have nothing to do */
@@ -178,10 +182,11 @@ static struct recursor *recursor(void) {
 	/* parse the "header," ie, everything up to ~, the second arg is null
 	 because we haven't set up the Files, so @files{}, @pwd{}, etc are
 	 undefined */
-	ParserParse(r->sitemap.parser,  0, 0, r->sitemap.fp);
-	ParserParse(r->newsfeed.parser, 0, 0, r->newsfeed.fp);
+	ParserParse(r->sitemap.parser, r->sitemap.fp, 0, 0);
+	ParserParse(r->newsfeed.parser, r->newsfeed.fp, 0, 0);
 	goto finally;
 catch:
+	/* We don't do anything with `fp` because `read_until_close` already did. */
 	recursor_();
 finally:
 	return r;
@@ -204,7 +209,7 @@ static int filter(struct Files *const files, const char *fn) {
 		str += strlen(dot_news);
 		if(*str == '\0') {
 			if(WidgetSetNews(fn)
-				&& ParserParse(r->newsfeed.parser, files, 0, r->newsfeed.fp)) {
+				&& ParserParse(r->newsfeed.parser, r->newsfeed.fp, files, 0)) {
 				ParserRewind(r->newsfeed.parser);
 			} else {
 				fprintf(stderr, "Recursor::filter: error writing news <%s>.\n", fn);
@@ -242,12 +247,12 @@ static int recurse(struct Files *const parent) {
 	if(!(f = Files(parent, &filter))) { why = "files"; return 0; }
 	/* write the index */
 	if((fp = fopen(html_index, "w"))) {
-		ParserParse(r->index.parser, f, 0, fp);
+		ParserParse(r->index.parser, fp, f, 0);
 		ParserRewind(r->index.parser);
 		fclose(fp);
 	} else perror(html_index); /* fixme: this should be an error */
 	/* sitemap */
-	ParserParse(r->sitemap.parser, f, 0, r->sitemap.fp);
+	ParserParse(r->sitemap.parser, r->sitemap.fp, f, 0);
 	ParserRewind(r->sitemap.parser);
 	/* recurse */
 	while(FilesAdvance(f)) {
