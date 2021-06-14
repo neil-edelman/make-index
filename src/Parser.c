@@ -42,6 +42,7 @@
 #include <stdio.h>  /* [f]printf FILE */
 #include <stdlib.h> /* malloc */
 #include <string.h> /* strstr, strpbrk */
+#include <assert.h>
 #include "Widget.h"
 #include "Parser.h"
 
@@ -171,12 +172,12 @@ int ParserParse(struct Parser *p, FILE *fp,
 	return 0;
 }
 
-/** Binary search of `str` -- `end`. */
+/** Binary search of `str` -- `end` in symbol table. */
 static const struct Symbol *match(const char *str, const char *end) {
-	const int N = sizeof(sym) / sizeof(struct Symbol);
-	int a, lo = 0, mid, hi = N - 1;
-	size_t lenMatch, lenComp;
-	lenMatch = end - str;
+	const int n = sizeof sym / sizeof *sym; /* global symbol table */
+	int a, lo = 0, mid, hi = n - 1;
+	size_t lenMatch = (size_t)(end - str), lenComp;
+	assert(str <= end);
 	while(lo <= hi) {
 		mid = (lo + hi) >> 1;
 		/* this is highly inefficient */

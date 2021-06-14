@@ -21,6 +21,7 @@
 #include <string.h> /* strncat strncpy */
 #include <stdio.h>  /* fprintf FILE */
 #include <time.h>   /* time gmtime - for @date */
+#include <errno.h>
 #include <assert.h>
 #include "Files.h"
 #include "Parser.h"
@@ -45,29 +46,33 @@ static int day           = 20;
 static char title[64]    = "(no title)";
 static char filenews[64] = "(no file name)";
 
-/* private */
-int clip(int no, const int low, const int high);
+/** @return `no` clipped between [`low`, `high`]. */
+static int clip(int no, const int low, const int high) {
+	assert(low <= high);
+	if(no < low)       no = low;
+	else if(no > high) no = high;
+	return no;
+}
 
-/** I don't know what this does with `fn`. */
+/** Reads the news from `fn` into static variables. @return Success. */
 int WidgetWriteNews(const char *fn) {
 	char *dot;
 	int  read;
 	size_t tLen;
 	FILE *fp;
-	if(!fn || !(dot = strstr(fn, dot_news))) return 0;
-	if(strlen(fn) > sizeof filenews - 1) {
-		fprintf(stderr, "Widget::SetNews: news file name, \"%s,\" doesn't fit "
-			"in buffer (%u.)\n", fn, (unsigned)sizeof filenews);
-		return 0;
-	}
+	if(!fn || !(dot = strstr(fn, dot_news)) || strlen(fn) > sizeof filenews - 1)
+		return fprintf(stderr,
+		"Widget::WriteNews: news file invalid or too long (%lu,) <%s>.\n",
+		(unsigned long)sizeof filenews, fn), errno = EDOM, 0;
 	/* save the fn, safe because we checked it, and strip off .news */
 	strcpy(filenews, fn);
 	filenews[dot - fn] = '\0';
 	/* open .news */
-	if(!(fp = fopen(fn, "r"))) { perror(fn); return 0; }
+	if(!(fp = fopen(fn, "r"))) return 0;
 	read = fscanf(fp, "%d-%d-%d\n", &year, &month, &day);
-	if(read < 3) fprintf(stderr, "Widget::setNews: error parsing ISO 8601 "
-		"date, <YYYY-MM-DD>.\n");
+	if(read < 3) return fprintf(stderr,
+		"Widget::WriteNews: error parsing ISO 8601, <YYYY-MM-DD>, <%s>.\n",
+		fn), errno = EDOM, 0;
 	month = clip(month, 1, 12);
 	day   = clip(day,   1, 31);
 	/* fgets reads a newline at the end (annoying) so we strip that off */
@@ -75,48 +80,49 @@ int WidgetWriteNews(const char *fn) {
 	else if((tLen = strlen(title)) > 0 && title[tLen - 1] == '\n')
 		title[tLen - 1] = '\0';
 	if(fclose(fp)) perror(fn);
-	fprintf(stderr, "News <%s>, '%s' %d-%d-%d.\n", filenews, title, year,
-		month, day);
-	return -1;
+	fprintf(stderr, "News <%s>, '%s' %d-%d-%d.\n",
+		filenews, title, year, month, day);
+	return 1;
 }
 
 /* the widget handlers */
 
-/** @implements ParserWidget */
+/** Displays the content, (either `index.d` or `content.d`.) Ignores `f` and
+ writes to `fp`. @implements ParserWidget @return Success. */
 int WidgetContent(struct Files *const f, FILE *const fp) {
 	char buf[81], *bufpos;
 	size_t i;
 	FILE *in;
-
 	(void)f;
-	printf("WidgetContent.\n");
+	assert(fp);
 	/* it's a nightmare to test if this is text (which most is,) in which case
 	 we should insert <p>...</p> after every paragraph, <>& -> &lt;&gt;&amp;,
 	 but we have to not translate already encoded html; the only solution that
 	 I could see is have a new language (like-LaTeX) that gracefully handles
 	 plain-text */
-	if((in = fopen(html_content, "r")) && printf("content\n") || (in = fopen(html_desc, "r")) && printf("desc\n")) {
+	if((in = fopen(html_content, "r")) || (in = fopen(html_desc, "r"))) {
 		for(i = 0; (i < max_read)
-			&& (bufpos = fgets(buf, (int)sizeof(buf), in)); i++) {
+			&& (bufpos = fgets(buf, (int)sizeof buf, in)); i++) {
 			fprintf(fp, "%s", bufpos);
 		}
-		if(fclose(in)) perror(html_desc);
+		if(fclose(in) == EOF) perror("index");
 	}
 	return 0;
 }
-/** @implements ParserWidget */
+/** Ignores `f` and writes to `fp`. @implements ParserWidget */
 int WidgetDate(struct Files *const f, FILE *const fp) {
 	(void)f;
 	/* ISO 8601 - YYYY-MM-DD */
 	fprintf(fp, "%4.4d-%2.2d-%2.2d", year, month, day);
 	return 0;
 }
-/** @implements ParserWidget */
+/** Writes to `fp` whether `f` is "Dir" or "File". @implements ParserWidget */
 int WidgetFilealt(struct Files *const f, FILE *const fp) {
 	fprintf(fp, "%s", FilesIsDir(f) ? "Dir" : "File");
 	return 0;
 }
-/** @implements ParserWidget */
+/** Writes to `fp` the description of `f`, that is the `.d` file, if it can
+ find it. @implements ParserWidget */
 int WidgetFiledesc(struct Files *const f, FILE *const fp) {
 	char buf[256];
 	const char *name;
@@ -136,14 +142,13 @@ int WidgetFiledesc(struct Files *const f, FILE *const fp) {
 		char *bufpos;
 		size_t i;
 		for(i = 0; (i < max_read)
-			&& (bufpos = fgets(buf, (int)sizeof(buf), in)); i++) {
+			&& (bufpos = fgets(buf, (int)sizeof(buf), in)); i++)
 			fprintf(fp, "%s", bufpos);
-		}
 		if(fclose(in)) perror(buf);
 	}
 	return 0;
 }
-/** @implements ParserWidget */
+/** Writes to `fp` the first line in `f`. @implements ParserWidget */
 int WidgetFilehref(struct Files *const f, FILE *const fp) {
 	const char *str, *name;
 	int ch;
@@ -163,7 +168,8 @@ int WidgetFilehref(struct Files *const f, FILE *const fp) {
 	}
 	return 0;
 }
-/** @implements ParserWidget */
+/** Writes to `fp` an icon of `f`, `.d.jpeg` if available.
+ @implements ParserWidget */
 int WidgetFileicon(struct Files *const f, FILE *const fp) {
 	char buf[256];
 	const char *name;
@@ -188,49 +194,48 @@ int WidgetFileicon(struct Files *const f, FILE *const fp) {
 	}
 	return 0;
 }
-/** @implements ParserWidget */
+/** Writes to `fp` the name of `f`. @implements ParserWidget */
 int WidgetFilename(struct Files *const f, FILE *const fp) {
 	fprintf(fp, "%s", FilesName(f));
 	return 0;
 }
-/** @implements ParserWidget */
+/** Ignores `fp` and advances the global file from `f`.
+ @implements ParserWidget */
 int WidgetFiles(struct Files *const f, FILE *const fp) {
-	while(0 && fp);
+	(void)fp;
 	return FilesAdvance((struct Files *)f) ? -1 : 0;
 }
-/** @implements ParserWidget */
-int WidgetFilesize(struct Files *const f, FILE *const fp) { /* eww */
+/** Writes to `fp` the size of `f` in KB. @implements ParserWidget */
+int WidgetFilesize(struct Files *const f, FILE *const fp) {
 	if(!FilesIsDir(f)) fprintf(fp, " (%d KB)", FilesSize(f));
 	return 0;
 }
-/** @implements ParserWidget */
+/** Ignores `f`, writes to `fp` the news contained in a global.
+ @implements ParserWidget */
 int WidgetNews(struct Files *const f, FILE *const fp) {
 	char buf[256], *bufpos;
 	size_t i;
 	FILE *in;
-
 	(void)f;
 	if(!filenews[0]) return 0;
 	if(!(in = fopen(filenews, "r"))) { perror(filenews); return 0; }
 	for(i = 0; (i < max_read) && (bufpos = fgets(buf, (int)sizeof(buf), in));
-		i++){
-		fprintf(fp, "%s", bufpos);
-	}
+		i++) fprintf(fp, "%s", bufpos);
 	if(fclose(in)) perror(filenews);
 	return 0;
 }
-/** @implements ParserWidget */
+/** Ignores `f`. Writes to `fp` the global name of the current news.
+ @implements ParserWidget */
 int WidgetNewsname(struct Files *const f, FILE *const fp) {
 	(void)f;
 	fprintf(fp, "%s", filenews);
 	return 0;
 }
-/** @implements ParserWidget */
+/** Ignores `f`. Writes to `fp` the date. @implements ParserWidget */
 int WidgetNow(struct Files *const f, FILE *const fp) {
 	char      t[22];
 	time_t    currentTime;
 	struct tm *formatedTime;
-
 	(void)f;
 	if((currentTime = time(0)) == (time_t)(-1)) { perror("@date"); return 0; }
 	formatedTime = gmtime(&currentTime);
@@ -239,36 +244,31 @@ int WidgetNow(struct Files *const f, FILE *const fp) {
 	fprintf(fp, "%s", t);
 	return 0;
 }
-/** @implements ParserWidget */
+/** Writes to `fp` the path of `f`. @implements ParserWidget */
 int WidgetPwd(struct Files *const f, FILE *const fp) {
 	static int persistant = 0; /* ick, be very careful! */
 	const char *pwd;
-	if(!persistant) { persistant = -1; FilesSetPath((struct Files *)f); }
+	/* fixme: Const-correctness! You can't do that. */
+	if(!persistant) { persistant = 1; FilesSetPath((struct Files *)f); }
 	pwd = FilesEnumPath(f);
 	if(!pwd)        { persistant = 0;  return 0; }
 	fprintf(fp, "%s", pwd);
 	return -1;
 }
-/** @implements ParserWidget */
+/** Writes to `fp` the path of `f` in reverse. @implements ParserWidget */
 int WidgetRoot(struct Files *const f, FILE *const fp) {
 	static int persistant = 0; /* ick, be very careful! */
 	const char *pwd;
-	if(!persistant) { persistant = -1; FilesSetPath((struct Files *)f); }
+	if(!persistant) { persistant = 1; FilesSetPath((struct Files *)f); }
 	pwd = FilesEnumPath(f);
 	if(!pwd)        { persistant = 0;  return 0; }
 	fprintf(fp, "%s", dir_parent);
 	return -1;
 }
-/** @implements ParserWidget */
+/** Ignores `f`. Writes to `fp` the current global title.
+ @implements ParserWidget */
 int WidgetTitle(struct Files *const f, FILE *const fp) {
 	(void)f;
 	fprintf(fp, "%s", title);
 	return 0;
-}
-
-int clip(int no, const int low, const int high) {
-	assert(low <= high);
-	if(no < low)       no = low;
-	else if(no > high) no = high;
-	return no;
 }
