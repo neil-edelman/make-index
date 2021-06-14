@@ -60,8 +60,12 @@ static void usage(void) {
 		"If you have these files accessible in the current directory, then,\n"
 		"<%s>\tcreates <%s> in all accessible subdirectories,\n"
 		"<%s>\tcreates <%s> from all the .news encountered,\n"
-		"<%s>\tcreates <%s> of all accessible subdirectories.\n\n"
-		"Of special significance:\n"
+		"<%s>\tcreates <%s> of all accessible subdirectories.\n\n",
+		programme,
+		template_index, html_index,
+		template_newsfeed, rss_newsfeed,
+		template_sitemap, xml_sitemap);
+	fprintf(stderr, "Of special significance:\n"
 		" <file>.d is a description of <file>;\n"
 		"  if this description is empty or has a leading blank line,\n"
 		"  it skips over this file;\n"
@@ -70,11 +74,7 @@ static void usage(void) {
 		" <file>.d.jpg is an (icon) image that will go with the description;\n"
 		" <news>.news as a newsworthy item; the format of this file is\n"
 		"  ISO 8601 date (YYYY-MM-DD,) next line title;\n"
-		" <link>.link as a link with the href in the file.\n\n",
-		programme,
-		template_index, html_index,
-		template_newsfeed, rss_newsfeed,
-		template_sitemap, xml_sitemap);
+		" <link>.link as a link with the href in the file.\n\n");
 	fprintf(stderr,
 		"2000, 2012 Neil Edelman, distributed under the terms of the\n"
 		"GNU General Public License 3.\n\n");

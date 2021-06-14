@@ -82,8 +82,24 @@ static const struct Symbol {
 	{ "title",    &WidgetTitle,    0 }   /* news */
 };
 
-/* private */
-static const struct Symbol *match(const char *str, const char *end);
+/** Binary search of `str` -- `end` in symbol table. */
+static const struct Symbol *match(const char *str, const char *end) {
+	const int n = sizeof sym / sizeof *sym; /* global symbol table */
+	int a, lo = 0, mid, hi = n - 1;
+	size_t lenMatch = (size_t)(end - str), lenComp;
+	assert(str <= end);
+	while(lo <= hi) {
+		mid = (lo + hi) >> 1;
+		/* this is highly inefficient */
+		lenComp = strlen(sym[mid].symbol);
+		a = strncmp(str, sym[mid].symbol,
+			lenMatch > lenComp ? lenMatch : lenComp);
+		if     (a < 0) hi = mid - 1;
+		else if(a > 0) lo = mid + 1;
+		else           return &sym[mid];
+	}
+	return 0;
+}
 
 /** @return Creates a parser for the string, `str`. */
 struct Parser *Parser(char *const str) {
@@ -169,24 +185,5 @@ int ParserParse(struct Parser *p, FILE *fp,
 		}
 	}
 	p->recursion--;
-	return 0;
-}
-
-/** Binary search of `str` -- `end` in symbol table. */
-static const struct Symbol *match(const char *str, const char *end) {
-	const int n = sizeof sym / sizeof *sym; /* global symbol table */
-	int a, lo = 0, mid, hi = n - 1;
-	size_t lenMatch = (size_t)(end - str), lenComp;
-	assert(str <= end);
-	while(lo <= hi) {
-		mid = (lo + hi) >> 1;
-		/* this is highly inefficient */
-		lenComp = strlen(sym[mid].symbol);
-		a = strncmp(str, sym[mid].symbol,
-			lenMatch > lenComp ? lenMatch : lenComp);
-		if     (a < 0) hi = mid - 1;
-		else if(a > 0) lo = mid + 1;
-		else           return &sym[mid];
-	}
 	return 0;
 }

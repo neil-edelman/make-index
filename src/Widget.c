@@ -4,7 +4,7 @@
  @subtitle Widget
  @author Neil
 
- Widgets like @(files), @(pwd). To create a widget:
+ Widgets like `@(files)`, `@(pwd)`. To create a widget:
 
  \* stick the code below implementing `ParserWidget`;
  \* create a prototype in `Widget.h`;
