@@ -61,9 +61,10 @@ static void usage(void) {
 		"<%s>\tcreates <%s> in all accessible subdirectories,\n"
 		"<%s>\tcreates <%s> from all the .news encountered,\n"
 		"<%s>\tcreates <%s> of all accessible subdirectories.\n\n"
-		"Of special signifigance:\n"
+		"Of special significance:\n"
 		" <file>.d is a description of <file>;\n"
-		"  if this description is an empty, it skips over this file;\n"
+		"  if this description is empty or has a leading blank line,\n"
+		"  it skips over this file;\n"
 		" index.d is a description of the directory;\n"
 		" content.d is an in-depth description of the directory;\n"
 		" <file>.d.jpg is an (icon) image that will go with the description;\n"
@@ -217,23 +218,21 @@ static int filter(struct Files *const files, const char *fn) {
 			return 0;
 		}
 	}
-	/* . */
-	if(!strcmp(fn, dir_current)) return 0;
-	/* .. */
-	if(!strcmp(fn, dir_parent) && FilesIsRoot(files)) return 0;
-	/* index.html */
-	if(!strcmp(fn, html_index))  return 0;
-	/* add .d, check 1 line for \n (hmm, this must be a real time waster) */
-	if(strlen(fn) > sizeof(filed) - strlen(dot_desc) - 1)
+	/* Obvious choices for not including. */
+	if(!strcmp(fn, dir_current)
+		|| !strcmp(fn, dir_parent) && FilesIsRoot(files)
+		|| !strcmp(fn, html_index)) return 0;
+	/* add .d, check 1 line for \n */
+	if(strlen(fn) > sizeof filed - 1 - strlen(dot_desc))
 		return fprintf(stderr,
-		"Recusor::filter: regected '%s' because it was too long (%d.)\n",
-		fn, (int)sizeof(filed)), 0;
+		"Recusor::filter: rejected '%s' because it was too long (%lu.)\n",
+		fn, (unsigned long)sizeof filed), 0;
 	strcpy(filed, fn);
 	strcat(filed, dot_desc);
 	if((fd = fopen(filed, "r"))) {
 		int ch = fgetc(fd);
-		if(ch == '\n' || ch == '\r' || ch == EOF)
-			return fprintf(stderr, "Recursor::filter: '%s' rejected.\n", fn), 0;
+		if(ch == '\n' || ch == '\r' || ch == EOF) return fprintf(stderr,
+			"Recursor::filter: '%s' rejected because .d.\n", fn), 0;
 		if(fclose(fd)) perror(filed);
 	}
 	return 1;
