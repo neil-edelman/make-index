@@ -31,7 +31,7 @@
 static const char *html_desc    = "index.d";
 static const char *html_content = "content.d";
 static const char *separator    = "/";
-static const char *picture      = ".jpeg"; /* yeah, I hard coded this */
+static const char *picture      = ".png" /*".jpeg"*/; /* yeah, I hard coded this */ /* jpeg is 10x less file size, but it doesn't have transparency. */
 static const size_t max_read    = 512;
 static const char *dot_link     = ".link";
 const char *dot_desc            = ".d"; /* used in multiple files */
