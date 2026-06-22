@@ -1,4 +1,6 @@
-extern const char *dir_current, *dir_parent;
+extern const struct from_files {
+	const char *dir_current, *dir_parent;
+} from_files;
 
 /** See <fn:Files>. */
 struct Files;

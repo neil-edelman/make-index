@@ -25,9 +25,9 @@
 #include <sys/stat.h>	/* umask */
 #include <errno.h>		/* EDOM */
 #include <assert.h>
-#include "Files.h"
-#include "Widget.h"
-#include "Parser.h"
+#include "files.h"
+#include "widget.h"
+#include "parser.h"
 
 /* constants */
 static const size_t granularity      = 1024;
@@ -37,10 +37,7 @@ static const char *rss_newsfeed      = "newsfeed.rss";
 static const char *template_index    = ".index.html";
 static const char *template_sitemap  = ".sitemap.xml";
 static const char *template_newsfeed = ".newsfeed.rss";
-/* in Files.c */
-extern const char *dir_current;
-extern const char *dir_parent;
-/* in Widget.c */
+/* in widget.c */
 extern const char *dot_news;
 
 /* Error reporting. */
@@ -201,13 +198,13 @@ static int filter(struct Files *const files, const char *fn) {
 	FILE *fd;
 	assert(r);
 	/* *.d[.0]* */
-	for(str = fn; (str = strstr(str, dot_desc)); ) {
-		str += strlen(dot_desc);
+	for(str = fn; (str = strstr(str, from_widget.dot_desc)); ) {
+		str += strlen(from_widget.dot_desc);
 		if(*str == '\0' || *str == '.') return 0;
 	}
 	/* *.news$ */
-	if((str = strstr(fn, dot_news))) {
-		str += strlen(dot_news);
+	if((str = strstr(fn, from_widget.dot_news))) {
+		str += strlen(from_widget.dot_news);
 		if(*str == '\0') {
 			if(WidgetSetNews(fn)
 				&& ParserParse(r->newsfeed.parser, r->newsfeed.fp, files, 0)) {
@@ -220,16 +217,16 @@ static int filter(struct Files *const files, const char *fn) {
 		}
 	}
 	/* Obvious choices for not including. */
-	if(!strcmp(fn, dir_current)
-		|| !strcmp(fn, dir_parent) && FilesIsRoot(files)
+	if(!strcmp(fn, from_files.dir_current)
+		|| !strcmp(fn, from_files.dir_parent) && FilesIsRoot(files)
 		|| !strcmp(fn, html_index)) return 0;
 	/* add .d, check 1 line for \n */
-	if(strlen(fn) > sizeof filed - 1 - strlen(dot_desc))
+	if(strlen(fn) > sizeof filed - 1 - strlen(from_widget.dot_desc))
 		return fprintf(stderr,
 		"Recusor::filter: rejected '%s' because it was too long (%lu.)\n",
 		fn, (unsigned long)sizeof filed), 0;
 	strcpy(filed, fn);
-	strcat(filed, dot_desc);
+	strcat(filed, from_widget.dot_desc);
 	if((fd = fopen(filed, "r"))) {
 		int ch = fgetc(fd);
 		if(fclose(fd)) perror(filed);
@@ -258,13 +255,13 @@ static int recurse(struct Files *const parent) {
 	while(FilesAdvance(f)) {
 		if(!FilesIsDir(f) ||
 		   !(name = FilesName(f)) ||
-		   !strcmp(dir_current, name) ||
-		   !strcmp(dir_parent,  name) ||
+		   !strcmp(from_files.dir_current, name) ||
+		   !strcmp(from_files.dir_parent,  name) ||
 		   !(name = FilesName(f))) continue;
 		if(chdir(name)) { perror(name); continue; }
 		if(!recurse(f)) return 0;
 		/* this happens on Windows; I don't know what to do */
-		if(chdir(dir_parent)) perror(dir_parent);
+		if(chdir(from_files.dir_parent)) perror(from_files.dir_parent);
 	}
 	Files_(f);
 	return 1;

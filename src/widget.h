@@ -1,4 +1,6 @@
-extern const char *dot_desc, *dot_news;
+extern const struct from_widget {
+	char *dot_desc, *dot_news;
+} from_widget;
 
 struct Recursor;
 struct Files;

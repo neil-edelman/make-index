@@ -26,11 +26,12 @@
 #include <time.h>   /* time gmtime - for @date */
 #include <errno.h>
 #include <assert.h>
-#include "Files.h"
-#include "Parser.h"
-#include "Widget.h"
+#include "files.h"
+#include "parser.h"
+#include "widget.h"
 
 /* constants */
+const struct from_widget from_widget = { ".d", ".news" };
 static const char *html_desc    = "index.d";
 static const char *html_content = "content.d";
 static const char *separator    = "/";
@@ -38,10 +39,6 @@ static const char *picture_png  = ".png";
 static const char *picture_jpeg = ".jpeg"; /* yeah, I hard coded this */
 static const size_t max_read    = 512;
 static const char *dot_link     = ".link";
-const char *dot_desc            = ".d"; /* used in multiple files */
-const char *dot_news            = ".news";
-extern const char *dir_current;
-extern const char *dir_parent;
 
 /* global, ick: news */
 static int year          = 1969;
@@ -66,8 +63,8 @@ int WidgetSetNews(const char *fn) {
 	size_t tLen;
 	FILE *fp = 0;
 	int success = 0;
-	if(!fn || !(dot = strstr(fn, dot_news)) || strlen(fn) > sizeof filenews - 1)
-		{ fprintf(stderr,
+	if(!fn || !(dot = strstr(fn, from_widget.dot_news))
+		|| strlen(fn) > sizeof filenews - 1) { fprintf(stderr,
 		"Widget::WriteNews: news file invalid or too long (%lu,) <%s>.\n",
 		(unsigned long)sizeof filenews, fn); errno = EDOM; goto catch; }
 	/* save the fn, safe because we checked it, and strip off .news */
@@ -146,7 +143,7 @@ int WidgetFiledesc(struct Files *const f, FILE *const fp) {
 	} else {
 		/* <file>.d */
 		strncpy(buf, name, sizeof(buf) - 6);
-		strncat(buf, dot_desc, 5lu);
+		strncat(buf, from_widget.dot_desc, 5lu);
 	}
 	if((in = fopen(buf, "r"))) {
 		char *bufpos;
@@ -188,7 +185,7 @@ int WidgetFileicon(struct Files *const f, FILE *const fp) {
 	if(!(name = FilesName(f))) return 0;
 	/* insert <file>.d.png or jpeg if available */
 	strncpy(buf, name, sizeof(buf) - 12);
-	strncat(buf, dot_desc, 5lu);
+	strncat(buf, from_widget.dot_desc, 5lu);
 	strncat(buf, picture_png, 6lu);
 	if((in = fopen(buf, "r"))) {
 		fprintf(fp, "%s", buf);
@@ -196,7 +193,7 @@ int WidgetFileicon(struct Files *const f, FILE *const fp) {
 		goto finally;
 	}
 	strncpy(buf, name, sizeof(buf) - 12);
-	strncat(buf, dot_desc, 5lu);
+	strncat(buf, from_widget.dot_desc, 5lu);
 	strncat(buf, picture_jpeg, 6lu);
 	if((in = fopen(buf, "r"))) {
 		fprintf(fp, "%s", buf);
@@ -208,7 +205,7 @@ int WidgetFileicon(struct Files *const f, FILE *const fp) {
 	 as having a @root{/} */
 	FilesSetPath((struct Files *)f);
 	while(FilesEnumPath((struct Files *)f)) {
-		fprintf(fp, "%s%s", dir_parent, separator);
+		fprintf(fp, "%s%s", from_files.dir_parent, separator);
 	}
 	fprintf(fp, "%s%s", FilesIsDir(f) ? "dir" : "file", picture_png);
 finally:
@@ -282,7 +279,7 @@ int WidgetRoot(struct Files *const f, FILE *const fp) {
 	if(!persistant) { persistant = 1; FilesSetPath((struct Files *)f); }
 	pwd = FilesEnumPath(f);
 	if(!pwd)        { persistant = 0;  return 0; }
-	fprintf(fp, "%s", dir_parent);
+	fprintf(fp, "%s", from_files.dir_parent);
 	return -1;
 }
 /** Ignores `f`. Writes to `fp` the current global title.

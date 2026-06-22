@@ -15,11 +15,10 @@
 #include <dirent.h>   /* opendir readdir closedir */
 #include <sys/stat.h> /* fstat */
 #include <assert.h>
-#include "Files.h"
+#include "files.h"
 
 /* constants */
-const char          *dir_current = "."; /* used in multiple files */
-const char          *dir_parent  = "..";
+const struct from_files from_files = { ".", ".." };
 static const size_t max_filename = 128;
 
 /* public */
@@ -70,8 +69,8 @@ struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 	while((dirName = FilesEnumPath(files))) fprintf(stderr, "%s/", dirName);
 	fprintf(stderr, ">.\n");
 	/* read the current dir */
-	dir = opendir(dir_current);
-	if(!dir) { perror(dir_parent); Files_(files); return 0; }
+	dir = opendir(from_files.dir_current);
+	if(!dir) { perror(from_files.dir_parent); Files_(files); return 0; }
 	while((de = readdir(dir))) {
 		int error = 0;
 		/* ignore certain files, incomplete 'files'! -> Recusor.c */
@@ -92,7 +91,7 @@ struct Files *Files(struct Files *const parent, const FilesFilter filter) {
 		if(error) fprintf(stderr, "Files: <%s> missed being included on the "
 			"list.\n", de->d_name);
 	}
-	if(closedir(dir)) { perror(dir_current); }
+	if(closedir(dir)) { perror(from_files.dir_current); }
 	return files;
 }
 

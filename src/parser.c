@@ -43,8 +43,8 @@
 #include <stdlib.h> /* malloc */
 #include <string.h> /* strstr, strpbrk */
 #include <assert.h>
-#include "Widget.h"
-#include "Parser.h"
+#include "widget.h"
+#include "parser.h"
 
 /* private */
 static const int maxRecursion = 16;
@@ -54,7 +54,7 @@ struct Parser {
 	char *str;
 	char *pos;
 	char *rew;
-	int  recursion;
+	int recursion;
 };
 /* private - this is the list of 'widgets', see Widget.c - add widgets to here
  to make them recognised - ASCIIbetical */
