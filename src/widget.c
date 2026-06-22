@@ -102,18 +102,17 @@ int WidgetContent(struct Files *const f, FILE *const fp) {
 	FILE *in;
 	(void)f;
 	assert(fp);
-	/* it's a nightmare to test if this is text (which most is,) in which case
-	 we should insert <p>...</p> after every paragraph, <>& -> &lt;&gt;&amp;,
-	 but we have to not translate already encoded html; the only solution that
-	 I could see is have a new language (like-LaTeX) that gracefully handles
-	 plain-text */
-	if((in = fopen(html_content, "r")) || (in = fopen(html_desc, "r"))) {
-		for(i = 0; (i < max_read)
-			&& (bufpos = fgets(buf, (int)sizeof buf, in)); i++) {
-			fprintf(fp, "%s", bufpos);
-		}
-		if(fclose(in) == EOF) perror("index");
+	if((in = fopen(html_content, "r"))) {
+	} else if((in = fopen(html_desc, "r"))) {
+		/* A line of text without tags in an html file needs a paragraph. */
+		fprintf(fp, "<p>");
+	} else {
+		goto finally;
 	}
+	for(i = 0; (i < max_read) && (bufpos = fgets(buf, (int)sizeof buf, in)); i++)
+		fprintf(fp, "%s", bufpos);
+	if(fclose(in) == EOF) perror("index");
+finally:
 	return 0;
 }
 /** Ignores `f` and writes to `fp`. @implements ParserWidget */
