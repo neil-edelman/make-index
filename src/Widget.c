@@ -18,6 +18,9 @@
 /* 2017-03 fixed pedantic warnings; command-line improvements
  2008-03-25 */
 
+/* 2026-06-20 Icon `png` first, falls back to `jpeg`. I know that's a
+ lot more space, but transparency is kind of important. */
+
 #include <string.h> /* strncat strncpy */
 #include <stdio.h>  /* fprintf FILE */
 #include <time.h>   /* time gmtime - for @date */
@@ -31,7 +34,8 @@
 static const char *html_desc    = "index.d";
 static const char *html_content = "content.d";
 static const char *separator    = "/";
-static const char *picture      = ".png" /*".jpeg"*/; /* yeah, I hard coded this */ /* jpeg is 10x less file size, but it doesn't have transparency. */
+static const char *picture_png  = ".png";
+static const char *picture_jpeg = ".jpeg"; /* yeah, I hard coded this */
 static const size_t max_read    = 512;
 static const char *dot_link     = ".link";
 const char *dot_desc            = ".d"; /* used in multiple files */
@@ -175,29 +179,39 @@ int WidgetFilehref(struct Files *const f, FILE *const fp) {
 	return 0;
 }
 /** Writes to `fp` an icon of `f`, `.d.jpeg` if available.
- @implements ParserWidget */
+ @implements ParserWidget
+ @fixme Have a way to get dimensions: this is an _error_ in my page. */
 int WidgetFileicon(struct Files *const f, FILE *const fp) {
 	char buf[256];
 	const char *name;
 	FILE *in;
 	if(!(name = FilesName(f))) return 0;
-	/* insert <file>.d.jpeg if available */
-	strncpy(buf, name,    sizeof(buf) - 12);
-	strncat(buf, dot_desc,5lu);
-	strncat(buf, picture, 6lu);
+	/* insert <file>.d.png or jpeg if available */
+	strncpy(buf, name, sizeof(buf) - 12);
+	strncat(buf, dot_desc, 5lu);
+	strncat(buf, picture_png, 6lu);
 	if((in = fopen(buf, "r"))) {
 		fprintf(fp, "%s", buf);
 		if(fclose(in) == EOF) perror(buf);
-	} else {
-		/* added thing to get to root instead of / because sometimes 'root'
-		 is not the real root! eg www.geocities.com/~foo/; does the same thing
-		 as having a @root{/} */
-		FilesSetPath((struct Files *)f);
-		while(FilesEnumPath((struct Files *)f)) {
-			fprintf(fp, "%s%s", dir_parent, separator);
-		}
-		fprintf(fp, "%s%s", FilesIsDir(f) ? "dir" : "file", picture);
+		goto finally;
 	}
+	strncpy(buf, name, sizeof(buf) - 12);
+	strncat(buf, dot_desc, 5lu);
+	strncat(buf, picture_jpeg, 6lu);
+	if((in = fopen(buf, "r"))) {
+		fprintf(fp, "%s", buf);
+		if(fclose(in) == EOF) perror(buf);
+		goto finally;
+	}
+	/* added thing to get to root instead of / because sometimes 'root'
+	 is not the real root! eg www.geocities.com/~foo/; does the same thing
+	 as having a @root{/} */
+	FilesSetPath((struct Files *)f);
+	while(FilesEnumPath((struct Files *)f)) {
+		fprintf(fp, "%s%s", dir_parent, separator);
+	}
+	fprintf(fp, "%s%s", FilesIsDir(f) ? "dir" : "file", picture_png);
+finally:
 	return 0;
 }
 /** Writes to `fp` the name of `f`. @implements ParserWidget */
@@ -213,7 +227,7 @@ int WidgetFiles(struct Files *const f, FILE *const fp) {
 }
 /** Writes to `fp` the size of `f` in KB. @implements ParserWidget */
 int WidgetFilesize(struct Files *const f, FILE *const fp) {
-	if(!FilesIsDir(f)) fprintf(fp, " (%d KB)", FilesSize(f));
+	if(!FilesIsDir(f)) fprintf(fp, " (%d KB)", FilesSize(f));
 	return 0;
 }
 /** Ignores `f`, writes to `fp` the news contained in a global.
