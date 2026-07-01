@@ -39,6 +39,7 @@ static const char *picture_png  = ".png";
 static const char *picture_jpeg = ".jpeg"; /* yeah, I hard coded this */
 static const size_t max_read    = 512;
 static const char *dot_link     = ".link";
+static const char *const dot_git= ".git";
 
 /* global, ick: news */
 static int year          = 1969;
@@ -131,9 +132,10 @@ int WidgetFilealt(struct Files *const f, FILE *const fp) {
  find it. @implements ParserWidget */
 int WidgetFiledesc(struct Files *const f, FILE *const fp) {
 	char buf[256];
-	const char *name;
+	const char *name, *str;
 	FILE *in;
 	if(!(name = FilesName(f))) return 0;
+	if((str = strstr(name, dot_git)) && *(str += strlen(dot_git)) == '\0') goto git;
 	if(FilesIsDir(f)) {
 		/* <file>/index.d */
 		strncpy(buf, name, sizeof(buf) - 9);
@@ -153,22 +155,28 @@ int WidgetFiledesc(struct Files *const f, FILE *const fp) {
 		if(fclose(in)) perror(buf);
 	}
 	return 0;
+git:
+	fprintf(fp, "%s\n", "stub description"); // FIXME
+	return 0; /* 0? */
 }
 /** Writes to `fp` the first line in `f`. @implements ParserWidget */
 int WidgetFilehref(struct Files *const f, FILE *const fp) {
 	const char *str, *name;
 	int ch;
-	FILE *fhref;
+	FILE *fpcontents;
 	if(!(name = FilesName(f))) return 0;
 	if((str = strstr(name, dot_link)) && *(str += strlen(dot_link)) == '\0'
-		&& (fhref = fopen(name, "r"))) {
+		&& (fpcontents = fopen(name, "r"))) {
 		/* fixme: not too good, with the reading one char at a time */
 		for( ; ; ) {
-			ch = fgetc(fhref);
+			ch = fgetc(fpcontents);
 			if(ch == '\n' || ch == '\r' || ch == EOF) break;
 			fprintf(fp, "%c", ch);
 		}
-		if(fclose(fhref)) perror(name);
+		if(fclose(fpcontents)) perror(name);
+	} else if((str = strstr(name, dot_git)) && *(str += strlen(dot_git)) == '\0'
+		&& 1) {
+		fprintf(fp, "fixme stub"); /* <- FIXME */
 	} else {
 		fprintf(fp, "%s", name);
 	}
@@ -179,7 +187,7 @@ int WidgetFilehref(struct Files *const f, FILE *const fp) {
  @fixme Have a way to get dimensions: this is an _error_ in my page. */
 int WidgetFileicon(struct Files *const f, FILE *const fp) {
 	char buf[256];
-	const char *name;
+	const char *name, *icon, *str;
 	FILE *in;
 	if(!(name = FilesName(f))) return 0;
 	/* insert <file>.d.png or jpeg if available */
@@ -203,10 +211,12 @@ int WidgetFileicon(struct Files *const f, FILE *const fp) {
 	 is not the real root! eg www.geocities.com/~foo/; does the same thing
 	 as having a @root{/} */
 	FilesSetPath((struct Files *)f);
-	while(FilesEnumPath((struct Files *)f)) {
+	while(FilesEnumPath((struct Files *)f))
 		fprintf(fp, "%s%s", from_files.dir_parent, separator);
-	}
-	fprintf(fp, "%s%s", FilesIsDir(f) ? "dir" : "file", picture_png);
+	if(FilesIsDir(f)) icon = "dir.png";
+	else if((str = strstr(name, dot_git)) && *(str += strlen(dot_git)) == '\0') icon = "git-icon-1788c-a.png"; /* FIXME have a flag. */
+	else icon = "file.png";
+	fprintf(fp, "%s", icon);
 finally:
 	return 0;
 }
