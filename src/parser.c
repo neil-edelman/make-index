@@ -69,6 +69,8 @@ static const struct Symbol {
 	{ "filedesc", &WidgetFiledesc, 0 },  /* files */
 	{ "filehref", &WidgetFilehref, 0 },  /* files */
 	{ "fileicon", &WidgetFileicon, 0 },  /* files */
+	/*{ "fileiconx",&WidgetFileiconx,0 },*/  /* files */
+	/*{ "fileicony",&WidgetFileicony,0 },*/  /* files */
 	{ "filename", &WidgetFilename, 0 },  /* files */
 	{ "files",    &WidgetFiles,    -1 }, /* index */
 	{ "filesize", &WidgetFilesize, 0 },  /* files */
